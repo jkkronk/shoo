@@ -17,6 +17,7 @@ protocol AlertPresenting: AnyObject {
 protocol OverlayPresenting: AnyObject {
     var displayDuration: TimeInterval { get set }
     var clickToDismiss: Bool { get set }
+    var showOnAllScreens: Bool { get set }
     var onDismiss: (() -> Void)? { get set }
     var onSnooze: (() -> Void)? { get set }
     func show(level: EscalationLevel, snapshot: NSImage?)
@@ -77,6 +78,7 @@ final class AlertPresenter: AlertPresenting {
         if settings.overlayEnabled {
             overlay.displayDuration = settings.displayDurationSeconds
             overlay.clickToDismiss = settings.clickToDismiss
+            overlay.showOnAllScreens = settings.showOnAllScreens
             overlay.show(level: level, snapshot: snapshotProvider?())
         }
 

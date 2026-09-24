@@ -1,11 +1,13 @@
 import AppKit
 import SwiftUI
 
-/// Hosts ``OverlayView`` in a single, retained borderless, non-activating, floating panel.
+/// Hosts ``OverlayView`` in borderless, non-activating, floating panels: one per display when
+/// ``showOnAllScreens`` is on (the default), otherwise one on the display under the mouse.
 ///
-/// Fades in/out (window alpha + content scale), targets the screen under the mouse, floats
-/// above full-screen apps, follows the user across Spaces, and never steals focus. The
-/// panel is created lazily and reused between alerts so fade state is easy to manage.
+/// Fades in/out (window alpha + content scale), floats above full-screen apps, follows the user
+/// across Spaces, and never steals focus. Panels are created lazily and reused between alerts so
+/// fade state is easy to manage. They all share one ``OverlayModel``, so every display shows the
+/// same reminder, and dismissing it on one display dismisses it everywhere.
 @MainActor
 final class OverlayController {
     /// Animation timings (seconds). `holdFor(level:)` derives the on-screen hold.
@@ -27,11 +29,16 @@ final class OverlayController {
         didSet { model.clickToDismiss = clickToDismiss }
     }
 
-    /// Optional callbacks invoked from overlay affordances (click / ✕ / Snooze button).
+    /// Show the reminder on every connected display (driven from `showOnAllScreens`). When false,
+    /// only the display under the mouse pointer gets it.
+    var showOnAllScreens: Bool = true
+
+    /// Optional callbacks invoked from overlay affordances (click / Dismiss / Snooze).
     var onDismiss: (() -> Void)?
     var onSnooze: (() -> Void)?
 
-    private var panel: NSPanel?
+    /// Reused panels. For a reminder shown on `n` displays, the first `n` are in use.
+    private var panels: [NSPanel] = []
     private let model = OverlayModel()
     /// In-flight auto-dismiss; cancelled when a new alert arrives so re-fires don't dismiss
     /// the freshly-shown overlay.
@@ -43,13 +50,13 @@ final class OverlayController {
     private var generation = 0
 
     init() {
-        // Re-center if the display arrangement changes while the panel is showing.
+        // Re-lay out if the display arrangement changes while the reminder is showing.
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.recenterIfVisible() }
+            MainActor.assumeIsolated { self?.relayoutIfVisible() }
         }
     }
 
@@ -62,13 +69,10 @@ final class OverlayController {
     // MARK: - Show / dismiss
 
     /// Show the reminder at the given escalation level, fading in and scheduling auto-dismiss.
-    /// `snapshot` is a small camera photo shown in place of the ✋ emoji (nil → emoji fallback).
+    /// `snapshot` is a small camera photo shown in place of the hand symbol (nil → the hand).
     func show(level: EscalationLevel = .first, snapshot: NSImage? = nil) {
-        let panel = ensurePanel()
         dismissTask?.cancel()
         generation &+= 1  // invalidate any pending fade-out completion from a prior dismiss
-
-        positionOnTargetScreen(panel)
 
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         model.reduceMotion = reduceMotion
@@ -78,16 +82,19 @@ final class OverlayController {
         model.message = StopMessages.random()
         model.snapshot = snapshot
 
-        // Window starts transparent; fade alpha to 1. Content scales up unless reduce-motion.
-        panel.alphaValue = 0
-        panel.orderFrontRegardless()  // never key/activates — no focus steal
+        // Windows start transparent; fade alpha to 1. Content scales up unless reduce-motion.
+        let shown = layoutPanels()
+        for panel in shown {
+            panel.alphaValue = 0
+            panel.orderFrontRegardless()  // never key/activates — no focus steal
+        }
         model.isVisible = false
 
         let fade = reduceMotion ? Timing.reducedFade : Timing.fadeIn
         NSAnimationContext.runAnimationGroup { context in
             context.duration = fade
             context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            panel.animator().alphaValue = 1
+            for panel in shown { panel.animator().alphaValue = 1 }
         }
         // Drive the SwiftUI content transition just after ordering in.
         model.isVisible = true
@@ -95,10 +102,11 @@ final class OverlayController {
         scheduleDismiss(after: holdFor(level: level))
     }
 
-    /// Fade the overlay out immediately (e.g. click-to-dismiss). Idempotent.
+    /// Fade the overlay out on every display immediately (e.g. click-to-dismiss). Idempotent.
     func dismiss() {
         dismissTask?.cancel()
-        guard let panel, panel.isVisible else { return }
+        let showing = panels.filter { $0.isVisible }
+        guard !showing.isEmpty else { return }
 
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         model.isVisible = false  // content scales/fades down
@@ -107,13 +115,17 @@ final class OverlayController {
         NSAnimationContext.runAnimationGroup { context in
             context.duration = reduceMotion ? Timing.reducedFade : Timing.fadeOut
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            panel.animator().alphaValue = 0
-        } completionHandler: { [weak self, weak panel] in
-            // If a newer show() ran during the fade, it bumped `generation` — don't hide the
-            // freshly re-displayed overlay.
-            guard let self, self.generation == gen else { return }
-            panel?.alphaValue = 0
-            panel?.orderOut(nil)
+            for panel in showing { panel.animator().alphaValue = 0 }
+        } completionHandler: { [weak self] in
+            MainActor.assumeIsolated {
+                // If a newer show() ran during the fade, it bumped `generation` — don't hide the
+                // freshly re-displayed overlay.
+                guard let self, self.generation == gen else { return }
+                for panel in self.panels {
+                    panel.alphaValue = 0
+                    panel.orderOut(nil)
+                }
+            }
         }
     }
 
@@ -136,8 +148,7 @@ final class OverlayController {
 
     // MARK: - Panel lifecycle
 
-    private func ensurePanel() -> NSPanel {
-        if let panel { return panel }
+    private func makePanel() -> NSPanel {
         let panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: 360, height: 180),
             styleMask: [.borderless, .nonactivatingPanel],
@@ -165,7 +176,6 @@ final class OverlayController {
             onSnooze: { [weak self] in self?.handleSnoozeTap() }
         )
         panel.contentView = FirstMouseHostingView(rootView: root)
-        self.panel = panel
         return panel
     }
 
@@ -181,9 +191,15 @@ final class OverlayController {
 
     // MARK: - Multi-display targeting
 
-    /// Pick the screen to show on at show time: the screen under the mouse, then
-    /// `NSScreen.main`, then the first screen. Re-resolved on every show so display
-    /// rearrangement is handled automatically.
+    /// The displays to show on: all of them, or just the one under the mouse pointer.
+    /// Re-resolved on every show so display rearrangement is handled automatically.
+    private func targetScreens() -> [NSScreen] {
+        if showOnAllScreens { return NSScreen.screens }
+        return targetScreen().map { [$0] } ?? []
+    }
+
+    /// The single display to use when not showing on all of them: the screen under the mouse,
+    /// then `NSScreen.main`, then the first screen.
     func targetScreen() -> NSScreen? {
         let mouse = NSEvent.mouseLocation
         if let underMouse = NSScreen.screens.first(where: { NSMouseInRect(mouse, $0.frame, false) }) {
@@ -192,10 +208,26 @@ final class OverlayController {
         return NSScreen.main ?? NSScreen.screens.first
     }
 
-    /// Center the panel within the target screen's `visibleFrame`, nudged ~8% above center
-    /// so it sits slightly high (more glanceable) and clear of the menu bar.
-    private func positionOnTargetScreen(_ panel: NSPanel) {
-        guard let screen = targetScreen() else { return }
+    /// Give each target display a panel (creating more when needed) centred on it, and hide
+    /// panels left over from displays no longer in use. Returns the panels in use.
+    private func layoutPanels() -> [NSPanel] {
+        let screens = targetScreens()
+        while panels.count < screens.count {
+            panels.append(makePanel())
+        }
+        for (panel, screen) in zip(panels, screens) {
+            position(panel, on: screen)
+        }
+        for panel in panels.dropFirst(screens.count) where panel.isVisible {
+            panel.orderOut(nil)
+        }
+        return Array(panels.prefix(screens.count))
+    }
+
+    /// Center the panel within the display's `visibleFrame`, nudged ~8% above center so it sits
+    /// slightly high (more glanceable) and clear of the menu bar.
+    private func position(_ panel: NSPanel, on screen: NSScreen) {
+        panel.layoutIfNeeded()  // settle the SwiftUI content's size before centring
         let frame = screen.visibleFrame
         let size = panel.frame.size
         // Center, nudged ~8% high, then clamp so the panel stays fully on a short display.
@@ -208,10 +240,14 @@ final class OverlayController {
         panel.setFrameOrigin(origin)
     }
 
-    /// Re-center onto a still-present screen if the arrangement changed mid-show.
-    private func recenterIfVisible() {
-        guard let panel, panel.isVisible else { return }
-        positionOnTargetScreen(panel)
+    /// If the display arrangement changed mid-show, re-centre on the current displays and give
+    /// a newly connected display its own copy of the reminder.
+    private func relayoutIfVisible() {
+        guard panels.contains(where: { $0.isVisible }) else { return }
+        for panel in layoutPanels() where !panel.isVisible {
+            panel.alphaValue = 1
+            panel.orderFrontRegardless()
+        }
     }
 }
 

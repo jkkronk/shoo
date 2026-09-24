@@ -23,6 +23,7 @@ final class AppSettings: ObservableObject {
         static let soundName = "soundName"
         static let notificationEnabled = "notificationEnabled"
         static let clickToDismiss = "clickToDismiss"
+        static let showOnAllScreens = "showOnAllScreens"
         static let escalationEnabled = "escalationEnabled"
         static let displayDurationSeconds = "displayDurationSeconds"
         static let snapshotInReminderEnabled = "snapshotInReminderEnabled"
@@ -41,7 +42,7 @@ final class AppSettings: ObservableObject {
         static let managed: [String] = [
             sensitivity, cooldownSeconds, launchAtLogin,
             overlayEnabled, soundEnabled, soundName, notificationEnabled,
-            clickToDismiss, escalationEnabled, displayDurationSeconds,
+            clickToDismiss, showOnAllScreens, escalationEnabled, displayDurationSeconds,
             snapshotInReminderEnabled,
             startWatchingOnLaunch, watchedGestures,
             scheduleEnabled, activeWeekdays, activeStartMinutes, activeEndMinutes,
@@ -65,9 +66,10 @@ final class AppSettings: ObservableObject {
         Keys.soundName: "Pop",
         Keys.notificationEnabled: false,
         Keys.clickToDismiss: false,
+        Keys.showOnAllScreens: true,
         Keys.escalationEnabled: true,
         Keys.displayDurationSeconds: 2.5,
-        Keys.snapshotInReminderEnabled: false,
+        Keys.snapshotInReminderEnabled: true,
         Keys.startWatchingOnLaunch: true,
         Keys.watchedGestures: GestureMask.all.rawValue,
         Keys.scheduleEnabled: false,
@@ -126,6 +128,12 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(clickToDismiss, forKey: Keys.clickToDismiss) }
     }
 
+    /// Show the overlay on every connected display. On by default; when off, only the display
+    /// with the mouse pointer shows it.
+    @Published var showOnAllScreens: Bool {
+        didSet { defaults.set(showOnAllScreens, forKey: Keys.showOnAllScreens) }
+    }
+
     /// Gentle escalation when the behavior persists across cooldown cycles. On by default.
     @Published var escalationEnabled: Bool {
         didSet { defaults.set(escalationEnabled, forKey: Keys.escalationEnabled) }
@@ -136,9 +144,9 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(displayDurationSeconds, forKey: Keys.displayDurationSeconds) }
     }
 
-    /// Show a small camera snapshot in the reminder overlay (instead of the ✋ icon). Off by
-    /// default: the photo is never persisted, but anyone who can see the screen (including a
-    /// screen share) can see it, so it's opt-in.
+    /// Show a small camera snapshot in the reminder overlay (instead of the hand symbol). On by
+    /// default. The photo is never persisted, and the overlay is kept out of screen capture
+    /// where macOS allows (see ``OverlayController``); Settings notes it's visible on screen.
     @Published var snapshotInReminderEnabled: Bool {
         didSet { defaults.set(snapshotInReminderEnabled, forKey: Keys.snapshotInReminderEnabled) }
     }
@@ -206,6 +214,7 @@ final class AppSettings: ObservableObject {
         self.soundName = defaults.string(forKey: Keys.soundName) ?? "Pop"
         self.notificationEnabled = defaults.bool(forKey: Keys.notificationEnabled)
         self.clickToDismiss = defaults.bool(forKey: Keys.clickToDismiss)
+        self.showOnAllScreens = defaults.bool(forKey: Keys.showOnAllScreens)
         self.escalationEnabled = defaults.bool(forKey: Keys.escalationEnabled)
         self.displayDurationSeconds = defaults.double(forKey: Keys.displayDurationSeconds)
         self.snapshotInReminderEnabled = defaults.bool(forKey: Keys.snapshotInReminderEnabled)
@@ -259,6 +268,7 @@ final class AppSettings: ObservableObject {
         soundName = defaults.string(forKey: Keys.soundName) ?? "Pop"
         notificationEnabled = defaults.bool(forKey: Keys.notificationEnabled)
         clickToDismiss = defaults.bool(forKey: Keys.clickToDismiss)
+        showOnAllScreens = defaults.bool(forKey: Keys.showOnAllScreens)
         escalationEnabled = defaults.bool(forKey: Keys.escalationEnabled)
         displayDurationSeconds = defaults.double(forKey: Keys.displayDurationSeconds)
         snapshotInReminderEnabled = defaults.bool(forKey: Keys.snapshotInReminderEnabled)

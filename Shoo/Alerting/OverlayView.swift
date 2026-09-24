@@ -12,15 +12,15 @@ final class OverlayModel: ObservableObject {
     @Published var message: String = ""
     /// The bold headline; a random cheeky "Gotcha!"-style word, re-picked on every show.
     @Published var headline: String = ""
-    /// A small camera snapshot shown in place of the ✋ emoji. `nil` when the snapshot
-    /// setting is off or no frame was available — then the emoji is used instead.
+    /// A small camera snapshot shown in place of the blue hand symbol. `nil` when the snapshot
+    /// setting is off or no frame was available — then the hand is shown instead.
     @Published var snapshot: NSImage?
     /// Mirrors the "Click overlay to dismiss" setting: when true, a click anywhere dismisses.
     @Published var clickToDismiss: Bool = false
 }
 
 /// The centered reminder shown when a hand reaches the face: a small camera snapshot (or a
-/// ✋ fallback), a random cheeky headline, and a random cheeky subtitle — all from
+/// blue hand symbol), a random cheeky headline, and a random cheeky subtitle — all from
 /// ``StopMessages``, refreshed each time the overlay appears.
 struct OverlayView: View {
     @ObservedObject var model: OverlayModel
@@ -41,7 +41,7 @@ struct OverlayView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            snapshotOrEmoji
+            snapshotOrHand
             Text(model.headline)
                 .font(.largeTitle.weight(.bold))
             Text(model.message)
@@ -83,9 +83,9 @@ struct OverlayView: View {
         )
     }
 
-    /// The camera snapshot with rounded corners echoing the panel, or the ✋ emoji fallback.
+    /// The camera snapshot with rounded corners echoing the panel, or a blue hand symbol.
     @ViewBuilder
-    private var snapshotOrEmoji: some View {
+    private var snapshotOrHand: some View {
         if let snapshot = model.snapshot {
             let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
             Image(nsImage: snapshot)
@@ -103,8 +103,10 @@ struct OverlayView: View {
                 )
                 .accessibilityHidden(true)
         } else {
-            Text("✋")
+            Image(systemName: "hand.raised.fill")
                 .font(.system(size: 56))
+                .foregroundStyle(.blue)
+                .accessibilityHidden(true)
         }
     }
 

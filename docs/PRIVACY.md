@@ -9,7 +9,7 @@ Shoo is designed to be private by default. It has no account, no analytics, and 
 - Uses the camera **only** while watching is turned on. Your camera's green light is on whenever it does.
 - Processes each frame **entirely on-device** using Apple's Vision framework.
 - From each frame it works out where your face is (a face outline plus the mouth and nose area) and where your hands are (fingertip and wrist positions). It uses this **only** to decide whether to show a reminder, keeps it in memory for that one frame, and then discards it.
-- If you turn on **Show camera snapshot in reminder** (off by default), the reminder shows a still photo from the camera. The photo is kept in memory only while the reminder is on screen and is never saved.
+- With **Show camera snapshot in reminder** on (the default; you can turn it off in Settings), the reminder shows a still photo from the camera. The photo is kept in memory only while the reminder is on screen and is never saved.
 
 ## What Shoo stores on your Mac
 

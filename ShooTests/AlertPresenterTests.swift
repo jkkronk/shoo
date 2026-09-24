@@ -8,6 +8,7 @@ import XCTest
 private final class SpyOverlay: OverlayPresenting {
     var displayDuration: TimeInterval = 0
     var clickToDismiss = false
+    var showOnAllScreens = false
     var onDismiss: (() -> Void)?
     var onSnooze: (() -> Void)?
     private(set) var shown: [(level: EscalationLevel, snapshot: NSImage?)] = []
@@ -86,23 +87,27 @@ final class AlertPresenterTests: XCTestCase {
         XCTAssertTrue(overlay.shown.isEmpty)
     }
 
-    func testOverlayReceivesLiveTimingAndClickSettings() {
+    func testOverlayReceivesLiveOverlaySettings() {
         let (presenter, settings, overlay, _, _) = make()
         settings.displayDurationSeconds = 7.5
         settings.clickToDismiss = true
+        settings.showOnAllScreens = false
 
         presenter.present(level: .first)
 
         XCTAssertEqual(overlay.displayDuration, 7.5, accuracy: 0.0001)
         XCTAssertTrue(overlay.clickToDismiss)
+        XCTAssertFalse(overlay.showOnAllScreens)
 
         // Settings are re-read on each present, not cached.
         settings.displayDurationSeconds = 3.0
         settings.clickToDismiss = false
+        settings.showOnAllScreens = true
         presenter.present(level: .first)
 
         XCTAssertEqual(overlay.displayDuration, 3.0, accuracy: 0.0001)
         XCTAssertFalse(overlay.clickToDismiss)
+        XCTAssertTrue(overlay.showOnAllScreens)
     }
 
     func testSoundPlaysWhenEnabled() {

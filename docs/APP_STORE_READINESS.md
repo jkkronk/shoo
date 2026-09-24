@@ -13,14 +13,14 @@ The foundation suits the Mac App Store. Shoo is sandboxed with only the camera e
 Three things stand in the way of a submission:
 
 1. **The distribution setup was never built.** There's no team, no signing and no upload path, and CI runs on a GitHub runner that's retired on 2 November.
-2. **Some Apple policy problems.** The most serious is that the app icon is Apple's ✋ emoji.
+2. **Some Apple policy problems.** The most serious is that the app icon is Apple's ✋ emoji (since replaced, see [P0-3](#p0-3-the-app-icon-is-apples--emoji)).
 3. **Bugs in first launch and settings that a reviewer will hit within minutes.** The worst one: on a fresh install the app shows no window at all.
 
 | ID | Problem | Priority | Status |
 |---|---|---|---|
 | [P0-1](#p0-1-no-signing-archive-or-upload-pipeline) | No signing, archive or upload pipeline | Blocker | Open |
 | [P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242) | `LSApplicationCategoryType` is missing, so the upload is rejected (ITMS-90242) | Blocker | Open (depends on your category choice) |
-| [P0-3](#p0-3-the-app-icon-is-apples--emoji) | The app icon is Apple's ✋ emoji (guideline 5.2.5) | Blocker | Open |
+| [P0-3](#p0-3-the-app-icon-is-apples--emoji) | The app icon is Apple's ✋ emoji (guideline 5.2.5) | Blocker | Partly: replaced with an original blue hand (`scripts/draw-appicon.swift`); still needs an Icon Composer version for macOS 26+ |
 | [P0-4](#p0-4-move-to-xcode-26) | Move to Xcode 26: the `macos-14` CI runner is retired on 2 Nov 2026, and the icon fix needs Xcode 26 | Blocker | **Fixed in CI**: `macos-26` with Xcode 26.6. Build locally with Xcode 26 too |
 | [P0-5](#p0-5-a-fresh-install-shows-no-ui-because-onboarding-never-opens) | A fresh install shows no UI because onboarding never opens (guideline 2.1) | Blocker in practice | **Fixed** |
 | [P0-6](#p0-6-the-app-store-connect-listing-doesnt-exist-yet) | The App Store Connect listing is missing: privacy URL, support URL, screenshots, review notes | Blocker | Open |
@@ -31,7 +31,7 @@ Three things stand in the way of a submission:
 | [P1-5](#p1-5-camera-permission-priming-screen-wording) | Button wording on the camera-permission priming screen (guideline 5.1.1) | Fix before submitting | **Fixed** (the close button stays enabled on the camera step) |
 | [P1-6](#p1-6-give-the-reviewer-a-way-to-see-the-app-work) | The reviewer has no way to see the app work without a real trigger | Fix before submitting | Partly: *Preview Reminder* added; description and demo video still to do |
 | [P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it) | The privacy policy is incomplete and not hosted | Fix before submitting | Partly: text updated in the app and `docs/PRIVACY.md`; still needs hosting |
-| [P1-8](#p1-8-the-camera-snapshot-is-on-by-default-and-shows-up-in-screen-shares) | The camera snapshot is on by default and shows up in screen shares | Fix before submitting | **Fixed** |
+| [P1-8](#p1-8-the-camera-snapshot-is-on-by-default-and-shows-up-in-screen-shares) | The camera snapshot is on by default and shows up in screen shares | Fix before submitting | Partly: the overlay is kept out of screen capture; the snapshot stays **on by default** (product decision) |
 | [P1-9](#p1-9-keep-the-marketing-claims-accurate-and-non-medical) | Keep the marketing claims accurate and non-medical (guidelines 1.4.1 and 2.3.1) | Fix before submitting | Partly: onboarding now mentions the camera light; listing text is yours |
 | [P2-*](#p2-should-fix-quality-ratings-robustness) | Features with no UI, camera choice, energy use, a rare frame-rate crash, discoverability, localization, copyright | Should fix | P2-4 (frame-rate crash) **fixed**; the rest open |
 | [P3-*](#p3-hygiene) | CI, deprecated API, Swift 6 readiness, dead code, stale docs, two builds sharing one bundle ID | Nice to have | Open |
@@ -45,7 +45,10 @@ Three things stand in the way of a submission:
 - **Camera permission:** the button on the priming screen says "Continue".
 - **Preview Reminder:** new button in Settings.
 - **Privacy policy:** updated in the app and in `docs/PRIVACY.md`.
-- **Snapshot:** off by default, and the overlay is kept out of screen capture.
+- **Snapshot:** the overlay is kept out of screen capture. The snapshot itself stays on by default.
+- **Overlay hand:** when there's no snapshot, the overlay now shows a blue hand symbol instead of the yellow ✋ emoji.
+- **App icon:** now an original blue hand drawn from basic shapes, not the Apple emoji. `scripts/draw-appicon.swift` regenerates it. SF Symbols can't be used in app icons, so it isn't the overlay's symbol.
+- **All displays:** the reminder shows on every display by default. Settings → "Show on all displays" limits it to the display with the pointer.
 - **CI:** now runs on `macos-26` with Xcode 26.6.
 - **Frame-rate crash:** fixed for cameras with fractional rates such as 29.97 fps.
 
@@ -99,7 +102,7 @@ A related gotcha: `INFOPLIST_KEY_ITSAppUsesNonExemptEncryption` at [`project.yml
 
 **Evidence:** I rendered U+270B in Apple Color Emoji on this Mac. The icon's hand matches it: same outline, finger lengths, thumb and shading.
 
-**Why it matters:** guideline 5.2.5 says apps "may not include Apple emoji" ([App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#intellectual-property)). Emoji typed as text and rendered by the system at runtime are fine: the ✋ fallback in [`OverlayView.swift:98`](../Shoo/Alerting/OverlayView.swift#L98) and the notification title can stay. Emoji artwork baked into the bundle is not allowed. The icon also looks soft at 512 and 1024 px because it was scaled up from the emoji bitmap.
+**Why it matters:** guideline 5.2.5 says apps "may not include Apple emoji" ([App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#intellectual-property)). Emoji typed as text and rendered by the system at runtime are fine: the ✋ in the notification title can stay. (The reminder overlay now uses a blue SF Symbol hand instead of the emoji.) Emoji artwork baked into the bundle is not allowed. The icon also looks soft at 512 and 1024 px because it was scaled up from the emoji bitmap.
 
 **Fix:**
 - Commission or draw an original hand/stop mark. SF Symbols are licensed for in-app UI but not for app icons, so `hand.raised` can't be the icon either.
@@ -309,7 +312,7 @@ As a result, users can never reach the "Paused by schedule" state, and "Snooze u
 | Category | To do | Health & Fitness is the natural fit but needs the medical-device declaration; Productivity avoids it. Must match `LSApplicationCategoryType` ([P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242)) |
 | Privacy policy URL | Missing | GitHub Pages page built from `docs/PRIVACY.md` ([P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it)) |
 | Support URL | Missing | Small support page or GitHub Issues |
-| Screenshots | Missing | 3–5 images at 2560×1600: menu popover, overlay (✋ fallback or a consenting person's photo), Settings, onboarding privacy page |
+| Screenshots | Missing | 3–5 images at 2560×1600: menu popover, overlay (blue hand symbol or a consenting person's photo), Settings, onboarding privacy page |
 | App Privacy | Ready | "Data Not Collected" (matches `PrivacyInfo.xcprivacy`) |
 | Age rating | To do | Answer the reworked questionnaire; expect 4+, or 9+ if you say yes to health or wellness topics |
 | Export compliance | Ready | `ITSAppUsesNonExemptEncryption = false` is in Info.plist |

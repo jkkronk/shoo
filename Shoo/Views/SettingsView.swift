@@ -86,6 +86,11 @@ private struct SettingsForm: View {
     private var remindersSection: some View {
         Section("How you're reminded") {
             Toggle("Show overlay", isOn: $settings.overlayEnabled)
+            Toggle(isOn: $settings.showOnAllScreens) {
+                Text("Show on all displays")
+                Text("When off, the overlay appears only on the display with the pointer.")
+            }
+            .disabled(!settings.overlayEnabled)
             Toggle("Play a sound", isOn: $settings.soundEnabled)
             Toggle("Show a notification", isOn: Binding(
                 get: { settings.notificationEnabled },

@@ -21,7 +21,7 @@ Three things stand in the way of a submission:
 | [P0-1](#p0-1-no-signing-archive-or-upload-pipeline) | No signing, archive or upload pipeline | Blocker | Open |
 | [P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242) | `LSApplicationCategoryType` is missing, so the upload is rejected (ITMS-90242) | Blocker | Open (depends on your category choice) |
 | [P0-3](#p0-3-the-app-icon-is-apples--emoji) | The app icon is Apple's ✋ emoji (guideline 5.2.5) | Blocker | Open |
-| [P0-4](#p0-4-move-to-xcode-26) | Move to Xcode 26: the `macos-14` CI runner is retired on 2 Nov 2026, and the icon fix needs Xcode 26 | Blocker | Open |
+| [P0-4](#p0-4-move-to-xcode-26) | Move to Xcode 26: the `macos-14` CI runner is retired on 2 Nov 2026, and the icon fix needs Xcode 26 | Blocker | **Fixed in CI**: `macos-26` with Xcode 26.6. Build locally with Xcode 26 too |
 | [P0-5](#p0-5-a-fresh-install-shows-no-ui-because-onboarding-never-opens) | A fresh install shows no UI because onboarding never opens (guideline 2.1) | Blocker in practice | **Fixed** |
 | [P0-6](#p0-6-the-app-store-connect-listing-doesnt-exist-yet) | The App Store Connect listing is missing: privacy URL, support URL, screenshots, review notes | Blocker | Open |
 | [P1-1](#p1-1-the-overlays-snooze-and-dismiss-buttons-cant-be-clicked-with-default-settings) | The overlay's Snooze and Dismiss buttons can't be clicked with default settings | Fix before submitting | **Fixed** |
@@ -33,7 +33,7 @@ Three things stand in the way of a submission:
 | [P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it) | The privacy policy is incomplete and not hosted | Fix before submitting | Partly: text updated in the app and `docs/PRIVACY.md`; still needs hosting |
 | [P1-8](#p1-8-the-camera-snapshot-is-on-by-default-and-shows-up-in-screen-shares) | The camera snapshot is on by default and shows up in screen shares | Fix before submitting | **Fixed** |
 | [P1-9](#p1-9-keep-the-marketing-claims-accurate-and-non-medical) | Keep the marketing claims accurate and non-medical (guidelines 1.4.1 and 2.3.1) | Fix before submitting | Partly: onboarding now mentions the camera light; listing text is yours |
-| [P2-*](#p2-should-fix-quality-ratings-robustness) | Features with no UI, camera choice, energy use, a rare frame-rate crash, discoverability, localization, copyright | Should fix | Open |
+| [P2-*](#p2-should-fix-quality-ratings-robustness) | Features with no UI, camera choice, energy use, a rare frame-rate crash, discoverability, localization, copyright | Should fix | P2-4 (frame-rate crash) **fixed**; the rest open |
 | [P3-*](#p3-hygiene) | CI, deprecated API, Swift 6 readiness, dead code, stale docs, two builds sharing one bundle ID | Nice to have | Open |
 
 **Fixes, 2026-09-24 (uncommitted):**
@@ -46,6 +46,8 @@ Three things stand in the way of a submission:
 - **Preview Reminder:** new button in Settings.
 - **Privacy policy:** updated in the app and in `docs/PRIVACY.md`.
 - **Snapshot:** off by default, and the overlay is kept out of screen capture.
+- **CI:** now runs on `macos-26` with Xcode 26.6.
+- **Frame-rate crash:** fixed for cameras with fractional rates such as 29.97 fps.
 
 **Verification:** there's no Xcode on the review machine, so everything was checked with the Command Line Tools:
 - The app compiles with no new warnings.

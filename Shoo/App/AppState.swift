@@ -8,9 +8,14 @@ import ImageIO
 ///
 /// Owns the camera (behind the ``FrameSource`` seam), detector, alert manager, and the
 /// ``PowerCoordinator``, and exposes a single `isWatching` switch that the menu-bar UI
-/// toggles. Created once in ``ShooApp``.
+/// toggles. The app runs on one instance, ``shared``.
 @MainActor
 final class AppState: ObservableObject {
+    /// The app's single instance, shared by the SwiftUI scenes (``ShooApp``) and the app
+    /// delegate (``ShooAppDelegate``) so it exists at launch, before any menu content has
+    /// appeared. Tests create their own instances.
+    static let shared = AppState()
+
     /// How long the overlay's "Snooze" button quiets watching for.
     static let overlaySnoozeMinutes = 5
 
@@ -35,21 +40,16 @@ final class AppState: ObservableObject {
     /// scheduling is ignored until the next launch. Pure menu affordance.
     @Published private(set) var scheduleOverride: Bool = false
 
-    let settings = AppSettings()
-
-    /// Captures SwiftUI's `openWindow`/`dismissWindow` actions (set from the menu content's
-    /// `.onAppear`) so the ``ShooAppDelegate`` — which has no `@Environment` — can present the
-    /// onboarding window. See plan 04 §3.
-    let windowOpener = WindowOpener()
+    let settings: AppSettings
 
     /// Captures SwiftUI's `openSettings` action (set from the menu's `.onAppear`) so the menu
     /// can present the Settings window with the activation-policy dance an `LSUIElement` app
     /// needs to actually show & focus it.
     var openSettingsAction: (() -> Void)?
 
-    /// Restores the menu-bar-agent activation policy after onboarding closes. Wired by
-    /// ``ShooApp`` to ``ShooAppDelegate/finishOnboarding()``.
-    var onOnboardingFinished: (() -> Void)?
+    /// The onboarding window while it's open (see ``OnboardingWindow``). A new window for each
+    /// presentation, so the steps always start from the beginning.
+    private var onboardingWindow: NSWindow?
 
     /// Injectable wall clock — defaults to `Date()`. Tests inject a controlled clock so snooze,
     /// schedule, and daily-stats logic is deterministic.
@@ -91,8 +91,11 @@ final class AppState: ObservableObject {
     }
 
     init(frameSource: FrameSource = CameraController(),
+         settings: AppSettings? = nil,
          now: @escaping () -> Date = { Date() }) {
         self.now = now
+        let settings = settings ?? AppSettings()
+        self.settings = settings
         self.camera = frameSource
         self.power = PowerCoordinator(frameSource: frameSource)
         // Alerting layer: shared clock keeps the state machine and stats in lock-step.
@@ -157,12 +160,13 @@ final class AppState: ObservableObject {
     /// and activate so the window is focused and frontmost; the close observer restores
     /// `.accessory` once no tracked foreground window remains.
     func presentSettings() {
-        enterForegroundWindow { [weak self] in self?.openSettingsAction?() }
-    }
-
-    /// Open the onboarding window with the same activation dance + identity tracking.
-    func presentOnboarding() {
-        enterForegroundWindow { [weak self] in self?.windowOpener.open(id: WindowID.onboarding) }
+        enterForegroundWindow { [weak self] in
+            if let openSettings = self?.openSettingsAction {
+                openSettings()
+            } else {
+                Self.performSettingsMenuItem()
+            }
+        }
     }
 
     /// Flip to `.regular`, run `open`, activate, then track the window that became key so the
@@ -190,10 +194,17 @@ final class AppState: ObservableObject {
     private func installForegroundWindowObserver() {
         foregroundWindowObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.willCloseNotification, object: nil, queue: .main
-        ) { [weak self] _ in
+        ) { [weak self] note in
+            let closing = (note.object as? NSWindow).map { ObjectIdentifier($0) }
             // willClose fires before the window hides; defer a tick, then re-evaluate.
             DispatchQueue.main.async {
-                MainActor.assumeIsolated { self?.revertActivationIfNoForegroundWindows() }
+                MainActor.assumeIsolated {
+                    guard let self else { return }
+                    if let onboarding = self.onboardingWindow, closing == ObjectIdentifier(onboarding) {
+                        self.onboardingDidClose()
+                    }
+                    self.revertActivationIfNoForegroundWindows()
+                }
             }
         }
     }
@@ -220,8 +231,9 @@ final class AppState: ObservableObject {
     /// Re-enable reminders after a pause/snooze.
     func resumeAlerts() { alerts.resume() }
 
-    /// Fire a reminder immediately (debug menu).
-    func fireAlert() { alerts.fire() }
+    /// Show a reminder now through every enabled channel (Settings' "Preview Reminder"). Goes
+    /// straight to the presenter: no camera needed, and it doesn't count toward today's stats.
+    func previewReminder() { presenter.present(level: .first) }
 
     /// Whether reminders are currently suppressed (paused or snoozed).
     var alertsSuppressed: Bool { alerts.isSuppressed }
@@ -299,16 +311,13 @@ final class AppState: ObservableObject {
         syncLaunchAtLogin()
     }
 
-    /// Request camera access at an explicit user action (onboarding / menu CTA). On grant,
-    /// auto-start if the user opted into starting on launch. Never called on app launch.
+    /// Request camera access at an explicit user action (onboarding's camera step). Only
+    /// resolves permission; onboarding's Done button decides whether to start watching (see
+    /// ``completeOnboarding()``). Never called on app launch.
     func requestCameraAccess() async {
         let result = await permissionRequester()
         cameraStatus = result
-        if result == .authorized {
-            if settings.startWatchingOnLaunch {
-                startWatching()
-            }
-        } else {
+        if result != .authorized {
             sessionState = .noPermission(result)
         }
     }
@@ -597,14 +606,78 @@ final class AppState: ObservableObject {
     }
 }
 
-/// Stores SwiftUI's window actions so non-SwiftUI code (the `AppDelegate`) can open/close the
-/// onboarding window. Populated from the menu content's `.onAppear` (plan 04 §3) — `openWindow`
-/// is an `@Environment` value only available inside the view hierarchy.
-@MainActor
-final class WindowOpener {
-    var open: ((String) -> Void)?
-    var dismiss: ((String) -> Void)?
+// MARK: - Launch, relaunch & onboarding
 
-    func open(id: String) { open?(id) }
-    func dismiss(id: String) { dismiss?(id) }
+extension AppState {
+    /// Launch-time entry point, called by ``ShooAppDelegate``. The first run opens onboarding,
+    /// because a menu-bar app otherwise shows no window at all; later launches resume watching
+    /// if the user opted in.
+    func handleLaunch() {
+        if settings.hasOnboarded {
+            startWatchingOnLaunchIfNeeded()
+        } else {
+            presentOnboarding()
+        }
+    }
+
+    /// Honors "Start watching on launch": only once onboarding is done, and only when camera
+    /// access is already granted, so a launch (e.g. at login) never shows the camera prompt.
+    func startWatchingOnLaunchIfNeeded() {
+        guard settings.hasOnboarded, settings.startWatchingOnLaunch, !isWatching,
+              permissionProvider() == .authorized
+        else { return }
+        startWatching()
+    }
+
+    /// Shoo was launched again while already running (Finder, Spotlight, Launchpad). Bring an
+    /// open Shoo window forward; otherwise show onboarding if it's unfinished, or Settings.
+    func handleReopen() {
+        if let window = trackedForegroundWindows.allObjects.first(where: { $0.isVisible }) {
+            NSApp.activate(ignoringOtherApps: true)
+            window.makeKeyAndOrderFront(nil)
+        } else if !settings.hasOnboarded {
+            presentOnboarding()
+        } else {
+            presentSettings()
+        }
+    }
+
+    /// Open (or bring forward) the onboarding window, with the same activation dance and
+    /// identity tracking as Settings.
+    func presentOnboarding() {
+        let window = onboardingWindow ?? OnboardingWindow.make(appState: self)
+        onboardingWindow = window
+        NSApp.setActivationPolicy(.regular)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        trackedForegroundWindows.add(window)
+    }
+
+    /// Onboarding's Done button: start watching if the user chose to, then close the window.
+    /// Closing is what marks onboarding complete (see ``onboardingDidClose()``).
+    func completeOnboarding() {
+        if settings.startWatchingOnLaunch, cameraStatus == .authorized, !isWatching {
+            startWatching()
+        }
+        onboardingWindow?.close()
+    }
+
+    /// Runs after the onboarding window has closed, via Done or the close button. Closing early
+    /// still counts as onboarded, so the window doesn't come back at every launch.
+    private func onboardingDidClose() {
+        settings.hasOnboarded = true
+        onboardingWindow = nil
+    }
+
+    /// Trigger the "Settings…" (⌘,) item SwiftUI adds to the app menu for the `Settings` scene.
+    /// This opens Settings before the menu has handed over its `openSettings` action, e.g. on a
+    /// relaunch when the menu was never opened.
+    fileprivate static func performSettingsMenuItem() {
+        let items = (NSApp.mainMenu?.items ?? []).compactMap(\.submenu).flatMap(\.items)
+        let isSettingsItem = { (item: NSMenuItem) in
+            item.keyEquivalent == "," && item.keyEquivalentModifierMask == .command
+        }
+        guard let item = items.first(where: isSettingsItem), let menu = item.menu else { return }
+        menu.performActionForItem(at: menu.index(of: item))
+    }
 }

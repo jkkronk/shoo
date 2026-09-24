@@ -35,8 +35,8 @@ private final class SpyNotifications: NotificationPosting {
 }
 
 /// ``AlertPresenter`` fan-out: each channel fires iff its toggle is on (read live from
-/// settings), `.persistent` escalation forces the sound nudge, and the overlay receives the
-/// current display-duration / click-to-dismiss / snapshot on every present.
+/// settings, escalation included), and the overlay receives the current display-duration /
+/// click-to-dismiss / snapshot on every present.
 @MainActor
 final class AlertPresenterTests: XCTestCase {
     private var suiteName: String!
@@ -115,10 +115,17 @@ final class AlertPresenterTests: XCTestCase {
         XCTAssertEqual(sound.played, ["Pop"])
     }
 
-    func testPersistentEscalationForcesSoundEvenWhenDisabled() {
-        let (presenter, settings, _, sound, _) = make()
+    func testPersistentEscalationRespectsSoundSetting() {
+        let (presenter, settings, overlay, sound, _) = make()
         settings.soundEnabled = false
 
+        presenter.present(level: .persistent)
+
+        // Escalation stays visual: the overlay escalates, but no sound the user switched off.
+        XCTAssertEqual(overlay.shown.last?.level, .persistent)
+        XCTAssertTrue(sound.played.isEmpty)
+
+        settings.soundEnabled = true
         presenter.present(level: .persistent)
 
         XCTAssertEqual(sound.played.count, 1)

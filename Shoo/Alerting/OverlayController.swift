@@ -21,10 +21,10 @@ final class OverlayController {
     /// Base hold time; updated from `AppSettings.displayDurationSeconds`.
     var displayDuration: TimeInterval = 2.5
 
-    /// Whether the panel accepts clicks (driven from `clickToDismiss`). When false, clicks
-    /// pass straight through to the app behind.
+    /// When true, a click anywhere on the overlay dismisses it (driven from `clickToDismiss`).
+    /// The Snooze and Dismiss buttons work either way.
     var clickToDismiss: Bool = false {
-        didSet { panel?.ignoresMouseEvents = !clickToDismiss }
+        didSet { model.clickToDismiss = clickToDismiss }
     }
 
     /// Optional callbacks invoked from overlay affordances (click / ✕ / Snooze button).
@@ -150,16 +150,21 @@ final class OverlayController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
-        panel.ignoresMouseEvents = !clickToDismiss
+        // Takes clicks so its Snooze/Dismiss buttons work. The panel is non-activating and can't
+        // become key, so clicking it never pulls focus from the app the user is in.
+        panel.ignoresMouseEvents = false
         panel.hidesOnDeactivate = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
+        // Keep the reminder, and any camera snapshot in it, out of screen sharing, recordings and
+        // screenshots wherever macOS honors this.
+        panel.sharingType = .none
 
         let root = OverlayView(
             model: model,
             onDismiss: { [weak self] in self?.handleDismissTap() },
             onSnooze: { [weak self] in self?.handleSnoozeTap() }
         )
-        panel.contentView = NSHostingView(rootView: root)
+        panel.contentView = FirstMouseHostingView(rootView: root)
         self.panel = panel
         return panel
     }
@@ -211,3 +216,9 @@ final class OverlayController {
 }
 
 extension OverlayController: OverlayPresenting {}
+
+/// Hands the first click straight to the SwiftUI buttons. The overlay panel never becomes key,
+/// so without this a click would be spent on the window instead of the button under it.
+private final class FirstMouseHostingView<Content: View>: NSHostingView<Content> {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+}

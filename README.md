@@ -27,7 +27,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PRIVACY.md`](docs/
 ## Requirements
 
 - macOS 14.0 or later
-- Xcode 16 or later (the committed project uses `objectVersion = 77`)
+- Xcode 26 or later (CI builds with Xcode 26.6; the committed project uses `objectVersion = 77`)
 - A built-in or external webcam
 
 ## Download

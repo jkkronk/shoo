@@ -2,15 +2,30 @@ import XCTest
 @testable import Shoo
 
 /// Permission-gating tests using ``MockFrameSource`` and ``AppState``'s injectable
-/// permission hooks — no real camera or system prompt involved.
+/// permission hooks — no real camera or system prompt involved. Settings live in an isolated
+/// suite so these tests never touch the host app's real preferences.
 @MainActor
 final class AppStatePermissionTests: XCTestCase {
+    private var suiteName: String!
+    private var defaults: UserDefaults!
+
+    override func setUp() {
+        super.setUp()
+        suiteName = "AppStatePermissionTests.\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)
+    }
+
+    override func tearDown() {
+        defaults.removePersistentDomain(forName: suiteName)
+        super.tearDown()
+    }
+
     private func makeState(
         mock: MockFrameSource,
         status: CameraPermission.Status,
         requested: CameraPermission.Status? = nil
     ) -> AppState {
-        let state = AppState(frameSource: mock)
+        let state = AppState(frameSource: mock, settings: AppSettings(defaults: defaults))
         state.permissionProvider = { status }
         if let requested {
             state.permissionRequester = { requested }
@@ -127,5 +142,103 @@ final class AppStatePermissionTests: XCTestCase {
         }
         mock.pushFrame()
         XCTAssertEqual(received, 1)
+    }
+
+    // MARK: - Launch & onboarding
+
+    /// `startWatching()` hands the camera start to an unstructured Task; let it run.
+    private func settle() async {
+        for _ in 0..<10 { await Task.yield() }
+    }
+
+    func testLaunchStartsWatchingWhenOnboardedOptedInAndAuthorized() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .authorized)
+        state.settings.hasOnboarded = true
+        state.settings.startWatchingOnLaunch = true
+
+        state.handleLaunch()
+        await settle()
+
+        XCTAssertTrue(state.isWatching)
+        XCTAssertEqual(mock.startCount, 1)
+    }
+
+    func testLaunchDoesNotStartWhenOptedOut() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .authorized)
+        state.settings.hasOnboarded = true
+        state.settings.startWatchingOnLaunch = false
+
+        state.handleLaunch()
+        await settle()
+
+        XCTAssertFalse(state.isWatching)
+        XCTAssertEqual(mock.startCount, 0)
+    }
+
+    func testLaunchNeverShowsTheCameraPrompt() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .notDetermined)
+        state.settings.hasOnboarded = true
+        state.settings.startWatchingOnLaunch = true
+        state.permissionRequester = {
+            XCTFail("launching must not prompt for camera access")
+            return .denied
+        }
+
+        state.handleLaunch()
+        await settle()
+
+        XCTAssertFalse(state.isWatching)
+        XCTAssertEqual(mock.startCount, 0)
+    }
+
+    func testStartOnLaunchWaitsForOnboarding() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .authorized)
+        state.settings.hasOnboarded = false
+        state.settings.startWatchingOnLaunch = true
+
+        // Not handleLaunch(): before onboarding, that opens the onboarding window instead.
+        state.startWatchingOnLaunchIfNeeded()
+        await settle()
+
+        XCTAssertFalse(state.isWatching)
+        XCTAssertEqual(mock.startCount, 0)
+    }
+
+    func testGrantingCameraAccessLeavesStartingToOnboardingsDoneButton() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .notDetermined, requested: .authorized)
+        state.settings.startWatchingOnLaunch = true
+
+        await state.requestCameraAccess()
+        await settle()
+
+        XCTAssertEqual(state.cameraStatus, .authorized)
+        XCTAssertFalse(state.isWatching)
+        XCTAssertEqual(mock.startCount, 0)
+
+        // Done, with "Start watching now and at every launch" on.
+        state.permissionProvider = { .authorized }
+        state.completeOnboarding()
+        await settle()
+
+        XCTAssertTrue(state.isWatching)
+        XCTAssertEqual(mock.startCount, 1)
+    }
+
+    func testCompletingOnboardingOptedOutDoesNotStartWatching() async {
+        let mock = MockFrameSource()
+        let state = makeState(mock: mock, status: .authorized)
+        state.refreshPermission()  // cameraStatus → .authorized
+        state.settings.startWatchingOnLaunch = false
+
+        state.completeOnboarding()
+        await settle()
+
+        XCTAssertFalse(state.isWatching)
+        XCTAssertEqual(mock.startCount, 0)
     }
 }

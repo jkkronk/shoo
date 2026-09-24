@@ -242,9 +242,12 @@ final class CameraController: NSObject, FrameSource {
     /// 15–30 fps camera), the software `FrameThrottle` still governs the detector's cadence.
     private func applyFrameRateCap() {
         guard let device = activeDevice else { return }
-        let ranges = device.activeFormat.videoSupportedFrameRateRanges
-            .map { (min: $0.minFrameRate, max: $0.maxFrameRate) }
-        guard let capped = FrameRateCap.clamp(desiredFPS: Double(targetFPS), into: ranges) else {
+        let ranges = device.activeFormat.videoSupportedFrameRateRanges.map {
+            FrameRateCap.Range(
+                minFPS: $0.minFrameRate, maxFPS: $0.maxFrameRate,
+                minFrameDuration: $0.minFrameDuration, maxFrameDuration: $0.maxFrameDuration)
+        }
+        guard let capped = FrameRateCap.clamp(desiredFPS: targetFPS, into: ranges) else {
             // No usable ranges reported — leave the device default rather than force a value.
             return
         }

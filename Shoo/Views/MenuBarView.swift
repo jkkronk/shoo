@@ -6,8 +6,6 @@ import SwiftUI
 struct MenuBarView: View {
     @EnvironmentObject private var appState: AppState
     @Environment(\.openSettings) private var openSettings
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.dismissWindow) private var dismissWindow
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -23,12 +21,10 @@ struct MenuBarView: View {
         .padding(14)
         .frame(width: 270)
         .onAppear {
-            // Re-check permission/login state and expose window actions to the AppDelegate.
+            // Re-check permission/login state, and hand the Settings action to AppState so it
+            // can do the activation dance.
             appState.refreshCameraStatus()
             appState.refreshTriggersToday()
-            appState.windowOpener.open = { id in openWindow(id: id) }
-            appState.windowOpener.dismiss = { id in dismissWindow(id: id) }
-            // Hand the Settings action to AppState so it can do the activation dance.
             appState.openSettingsAction = { openSettings() }
         }
     }
@@ -71,12 +67,6 @@ struct MenuBarView: View {
     @ViewBuilder
     private var primaryControl: some View {
         switch appState.effectiveState {
-        case .needsPermission:
-            Button("Grant Camera Access") {
-                Task { await appState.requestCameraAccess() }
-            }
-            .controlSize(.large)
-
         case .permissionDenied:
             Button("Open System Settings…") {
                 SystemSettings.openCameraPrivacy()
@@ -115,7 +105,9 @@ struct MenuBarView: View {
                 Button("Watch anyway") { appState.overrideSchedule() }
             }
 
-        case .watching, .paused:
+        case .needsPermission, .watching, .paused:
+            // Turning watching on is what asks for camera access (when it's still undecided),
+            // so the system prompt follows the user's own action rather than a "grant" button.
             VStack(alignment: .leading, spacing: 8) {
                 Toggle("Watch for face-touching", isOn: Binding(
                     get: { appState.isWatching },
@@ -123,7 +115,11 @@ struct MenuBarView: View {
                 ))
                 .toggleStyle(.switch)
 
-                if appState.isWatching {
+                if appState.effectiveState == .needsPermission {
+                    Text("macOS will ask for camera access.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if appState.isWatching {
                     snoozeMenu
                 }
             }

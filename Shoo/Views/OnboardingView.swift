@@ -1,14 +1,14 @@
+import AppKit
 import AVFoundation
 import SwiftUI
 
-/// First-run onboarding + camera-permission priming, presented in a focusable `Window` while
-/// the app temporarily runs as `.regular` (see ``ShooAppDelegate``).
+/// First-run onboarding + camera-permission priming, shown in an AppKit-hosted window (see
+/// ``OnboardingWindow``) while the app temporarily runs as `.regular`.
 ///
 /// A simple paged step machine: Welcome → Privacy → Camera access → All set. The macOS camera
-/// prompt fires only at the explicit "Enable Camera Access" tap — never on launch.
+/// prompt fires only at the camera step's "Continue" tap — never on launch.
 struct OnboardingView: View {
     @EnvironmentObject private var appState: AppState
-    @Environment(\.dismiss) private var dismiss
 
     private enum Step: Int {
         case welcome, privacy, camera, done
@@ -17,9 +17,6 @@ struct OnboardingView: View {
     @State private var step: Step = .welcome
     @State private var requesting = false
     @State private var cameraOutcome: CameraPermission.Status?
-    /// `finish` is reachable from both the Done button and `.onDisappear`; this makes the
-    /// pair idempotent so `onOnboardingFinished` can't double-fire.
-    @State private var didFinish = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -29,8 +26,6 @@ struct OnboardingView: View {
         }
         .padding(32)
         .frame(width: 460, height: 420)
-        // If the user closes the window early, still mark onboarded and restore .accessory.
-        .onDisappear { finish(markOnboarded: true, startIfPossible: false) }
     }
 
     // MARK: - Step content
@@ -56,6 +51,7 @@ struct OnboardingView: View {
                     privacyBullet("All processing happens on-device with Apple Vision.")
                     privacyBullet("Nothing is ever recorded or saved.")
                     privacyBullet("No network access — your video never leaves your Mac.")
+                    privacyBullet("Your camera's green light is on whenever Shoo is watching.")
                     privacyBullet("Sandboxed and built for the Mac App Store.")
                 }
             }
@@ -80,7 +76,11 @@ struct OnboardingView: View {
                     .foregroundStyle(.green)
                 Text("You're all set")
                     .font(.title2.weight(.semibold))
-                Toggle("Start watching now", isOn: Binding(
+                let icon = Image(systemName: "hand.raised.fill")
+                Text("Shoo lives in your menu bar. Look for \(icon) at the top of your screen.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                Toggle("Start watching now and at every launch", isOn: Binding(
                     get: { appState.settings.startWatchingOnLaunch },
                     set: { appState.settings.startWatchingOnLaunch = $0 }
                 ))
@@ -138,7 +138,9 @@ struct OnboardingView: View {
             }
         case .camera:
             if cameraOutcome == nil {
-                Button(requesting ? "Requesting…" : "Enable Camera Access") {
+                // Apple's guidance for a screen shown before a permission prompt: one button that
+                // leads to the system prompt, labelled "Continue" — not "Allow" or anything similar.
+                Button("Continue") {
                     requestAccess()
                 }
                 .disabled(requesting)
@@ -150,7 +152,7 @@ struct OnboardingView: View {
                     .controlSize(.large)
             }
         case .done:
-            Button("Done") { finishAndClose() }
+            Button("Done") { appState.completeOnboarding() }
                 .keyboardShortcut(.defaultAction)
                 .controlSize(.large)
         }
@@ -169,25 +171,25 @@ struct OnboardingView: View {
             }
         }
     }
+}
 
-    /// Mark onboarded, optionally start watching, restore `.accessory`, and dismiss.
-    private func finishAndClose() {
-        finish(markOnboarded: true, startIfPossible: true)
-        dismiss()
-    }
-
-    private func finish(markOnboarded: Bool, startIfPossible: Bool) {
-        guard !didFinish else { return }
-        didFinish = true
-        if markOnboarded {
-            appState.settings.hasOnboarded = true
-        }
-        if startIfPossible,
-           appState.settings.startWatchingOnLaunch,
-           appState.cameraStatus == .authorized {
-            appState.startWatching()
-        }
-        appState.onOnboardingFinished?()
+/// Hosts ``OnboardingView`` in a plain AppKit window. AppKit rather than a SwiftUI `Window`
+/// scene because onboarding has to open from `applicationDidFinishLaunching`, before any SwiftUI
+/// view exists to hand out an `openWindow` action. ``AppState`` owns the window and tracks it by
+/// identity so the activation policy reverts once it closes.
+@MainActor
+enum OnboardingWindow {
+    static func make(appState: AppState) -> NSWindow {
+        let window = NSWindow(
+            contentViewController: NSHostingController(
+                rootView: OnboardingView().environmentObject(appState)))
+        window.title = "Welcome to Shoo"
+        window.styleMask = [.titled, .closable]
+        // AppState holds the only strong reference; AppKit also releasing it on close would
+        // over-release it.
+        window.isReleasedWhenClosed = false
+        window.center()
+        return window
     }
 }
 

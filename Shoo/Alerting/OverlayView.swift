@@ -15,6 +15,8 @@ final class OverlayModel: ObservableObject {
     /// A small camera snapshot shown in place of the ✋ emoji. `nil` when the snapshot
     /// setting is off or no frame was available — then the emoji is used instead.
     @Published var snapshot: NSImage?
+    /// Mirrors the "Click overlay to dismiss" setting: when true, a click anywhere dismisses.
+    @Published var clickToDismiss: Bool = false
 }
 
 /// The centered reminder shown when a hand reaches the face: a small camera snapshot (or a
@@ -23,7 +25,7 @@ final class OverlayModel: ObservableObject {
 struct OverlayView: View {
     @ObservedObject var model: OverlayModel
 
-    /// Invoked by the ✕ button (or a tap when click-to-dismiss is on).
+    /// Invoked by the Dismiss button, or by a click anywhere when click-to-dismiss is on.
     var onDismiss: (() -> Void)?
     /// Invoked by the Snooze button.
     var onSnooze: (() -> Void)?
@@ -64,6 +66,12 @@ struct OverlayView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(background)
         .overlay(border)
+        // Click-to-dismiss: a click anywhere on the reminder dismisses it; the buttons keep
+        // their own actions.
+        .contentShape(RoundedRectangle(cornerRadius: 24))
+        .onTapGesture {
+            if model.clickToDismiss { onDismiss?() }
+        }
         // Dynamic Type scales the semantic fonts, capped so the 360×180 panel doesn't overflow.
         .dynamicTypeSize(...DynamicTypeSize.accessibility2)
         // Appear/disappear transition: cross-fade always; subtle scale unless reduce-motion.

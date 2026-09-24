@@ -80,8 +80,9 @@ final class AlertPresenter: AlertPresenting {
             overlay.show(level: level, snapshot: snapshotProvider?())
         }
 
-        // Sound: on if enabled, or forced once by a `.persistent` escalation nudge.
-        if settings.soundEnabled || level == .persistent {
+        // Sound only when the user turned it on. Escalation stays visual (the overlay holds
+        // longer at `.persistent`): a reminder must never make a noise the user switched off.
+        if settings.soundEnabled {
             sound.play(named: settings.soundName)
         }
 

@@ -19,6 +19,7 @@ private struct SettingsForm: View {
 
     @State private var loginItemState: LaunchAtLogin.State = LaunchAtLogin.state
     @State private var loginItemError = false
+    @State private var notificationsDenied = false
     @State private var showResetConfirm = false
     @State private var showPrivacy = false
 
@@ -86,13 +87,41 @@ private struct SettingsForm: View {
         Section("How you're reminded") {
             Toggle("Show overlay", isOn: $settings.overlayEnabled)
             Toggle("Play a sound", isOn: $settings.soundEnabled)
-            Toggle("Show a notification", isOn: $settings.notificationEnabled)
+            Toggle("Show a notification", isOn: Binding(
+                get: { settings.notificationEnabled },
+                set: { setNotificationsEnabled($0) }
+            ))
+            if notificationsDenied {
+                HStack {
+                    Text("Notifications for Shoo are turned off in System Settings.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Button("Open…") { SystemSettings.openNotifications() }
+                }
+            }
             Toggle("Show camera snapshot in reminder", isOn: $settings.snapshotInReminderEnabled)
             Toggle("Click overlay to dismiss", isOn: $settings.clickToDismiss)
             Text("The overlay is the primary reminder; sound and notifications are optional. "
-                + "The snapshot shows a quick photo of the moment (falls back to an icon when off).")
+                + "The snapshot is a photo from your camera. It's never saved, but anyone who can "
+                + "see your screen can see it.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+            Button("Preview Reminder") { appState.previewReminder() }
+        }
+    }
+
+    /// Notification banners need runtime permission: ask at the moment the user turns them on,
+    /// and back the toggle out (with a pointer to System Settings) if they're refused.
+    private func setNotificationsEnabled(_ enabled: Bool) {
+        notificationsDenied = false
+        settings.notificationEnabled = enabled
+        guard enabled else { return }
+        Task {
+            let granted = await appState.requestNotificationAuthorization()
+            if !granted {
+                settings.notificationEnabled = false
+                notificationsDenied = true
+            }
         }
     }
 

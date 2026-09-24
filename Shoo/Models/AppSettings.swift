@@ -67,7 +67,7 @@ final class AppSettings: ObservableObject {
         Keys.clickToDismiss: false,
         Keys.escalationEnabled: true,
         Keys.displayDurationSeconds: 2.5,
-        Keys.snapshotInReminderEnabled: true,
+        Keys.snapshotInReminderEnabled: false,
         Keys.startWatchingOnLaunch: true,
         Keys.watchedGestures: GestureMask.all.rawValue,
         Keys.scheduleEnabled: false,
@@ -120,8 +120,8 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(notificationEnabled, forKey: Keys.notificationEnabled) }
     }
 
-    /// When on, the overlay accepts clicks and a click dismisses it (otherwise clicks
-    /// pass through to the app behind).
+    /// When on, a click anywhere on the overlay dismisses it. Its Snooze and Dismiss buttons
+    /// work either way.
     @Published var clickToDismiss: Bool {
         didSet { defaults.set(clickToDismiss, forKey: Keys.clickToDismiss) }
     }
@@ -136,8 +136,9 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(displayDurationSeconds, forKey: Keys.displayDurationSeconds) }
     }
 
-    /// Show a small camera snapshot in the reminder overlay (instead of the ✋ icon). On by
-    /// default; the snapshot is transient and never persisted.
+    /// Show a small camera snapshot in the reminder overlay (instead of the ✋ icon). Off by
+    /// default: the photo is never persisted, but anyone who can see the screen (including a
+    /// screen share) can see it, so it's opt-in.
     @Published var snapshotInReminderEnabled: Bool {
         didSet { defaults.set(snapshotInReminderEnabled, forKey: Keys.snapshotInReminderEnabled) }
     }

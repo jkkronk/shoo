@@ -26,8 +26,9 @@ final class AppSettingsMigrationTests: XCTestCase {
         XCTAssertEqual(settings.sensitivity, 0.5, accuracy: 0.0001)
         XCTAssertEqual(settings.cooldownSeconds, 5.0, accuracy: 0.0001)
         XCTAssertFalse(settings.launchAtLogin)
-        XCTAssertFalse(settings.snapshotInReminderEnabled)  // opt-in: visible to screen shares
+        XCTAssertTrue(settings.snapshotInReminderEnabled)
         XCTAssertFalse(settings.clickToDismiss)
+        XCTAssertTrue(settings.showOnAllScreens)
         XCTAssertTrue(settings.startWatchingOnLaunch)
         XCTAssertEqual(settings.watchedGestures, .all)
         XCTAssertFalse(settings.scheduleEnabled)

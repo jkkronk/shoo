@@ -44,6 +44,29 @@ final class AppSettingsMigrationTests: XCTestCase {
         XCTAssertEqual(defaults.integer(forKey: "settingsSchemaVersion"), AppSettings.currentSchemaVersion)
     }
 
+    func testV1SensitivityShiftsUpOnMigrationToV2() {
+        // A v1 user who parked the slider at the old minimum lands on the new midpoint.
+        defaults.set(1, forKey: "settingsSchemaVersion")
+        defaults.set(0.0, forKey: "sensitivity")
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertEqual(settings.sensitivity, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(defaults.double(forKey: "sensitivity"), 0.5, accuracy: 0.0001)
+        XCTAssertEqual(defaults.integer(forKey: "settingsSchemaVersion"), 2)
+    }
+
+    func testV1SensitivityMigrationClamps() {
+        defaults.set(1, forKey: "settingsSchemaVersion")
+        defaults.set(0.8, forKey: "sensitivity")
+        XCTAssertEqual(AppSettings(defaults: defaults).sensitivity, 1.0, accuracy: 0.0001)
+    }
+
+    func testFreshInstallIsNotMigrated() {
+        // No stamped version = fresh install: registered defaults stay put (0.5, not 1.0).
+        let settings = AppSettings(defaults: defaults)
+        XCTAssertEqual(settings.sensitivity, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(defaults.integer(forKey: "settingsSchemaVersion"), 2)
+    }
+
     func testRoundTripPersistenceOfNewKeys() {
         do {
             let settings = AppSettings(defaults: defaults)

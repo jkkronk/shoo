@@ -75,18 +75,30 @@ struct DetectorConfig: Equatable {
 
     /// Map the 0…1 sensitivity slider to a concrete config.
     ///
-    /// End-stops: `s = 0` is very strict (tight boxes, 4 sustained frames, high
-    /// confidence floor → near-zero false positives); `s = 1` is generous (large
-    /// capture radius, lax thresholds, 2 sustained frames → catches approaches early).
+    /// Tuned so the *middle* of the slider is already conservative: real-world Vision
+    /// jitter (low-confidence joints, a hand near the chin, drinking) made the original
+    /// lax half of the range fire constantly, so users parked the slider at the minimum.
+    /// The old minimum now sits at `s = 0.5`; `s = 0` is stricter still (tight boxes,
+    /// 6 sustained frames, 0.6 confidence floor) and `s = 1` matches the old midpoint.
     static func from(sensitivity s: Double) -> DetectorConfig {
         let s = min(max(s, 0), 1)
+        let sustain: Int
+        if s > 0.66 {
+            sustain = 3
+        } else if s > 0.33 {
+            sustain = 4
+        } else if s > 0.15 {
+            sustain = 5
+        } else {
+            sustain = 6
+        }
         return DetectorConfig(
-            reach: CGFloat(lerp(0.04, 0.14, s)),       // tiny → generous capture radius
-            enterThreshold: lerp(0.75, 0.45, s),        // strict → lax
-            exitThreshold: lerp(0.45, 0.25, s),         // always < enter (hysteresis)
-            regionPad: CGFloat(lerp(0.01, 0.05, s)),
-            minSustainedFrames: s > 0.66 ? 2 : (s > 0.33 ? 3 : 4),
-            handPointConfidence: Float(lerp(0.5, 0.25, s))
+            reach: CGFloat(lerp(0.02, 0.08, s)),       // tight → moderate capture radius
+            enterThreshold: lerp(0.85, 0.60, s),        // strict → moderate
+            exitThreshold: lerp(0.55, 0.35, s),         // always < enter (hysteresis)
+            regionPad: CGFloat(lerp(0.0, 0.03, s)),
+            minSustainedFrames: sustain,
+            handPointConfidence: Float(lerp(0.6, 0.4, s))
         )
     }
 

@@ -51,7 +51,7 @@ final class AppSettings: ObservableObject {
     }
 
     /// Bump when adding/renaming keys and add a matching migration step in ``migrateIfNeeded()``.
-    static let currentSchemaVersion = 1
+    static let currentSchemaVersion = 2
 
     private let defaults: UserDefaults
 
@@ -240,16 +240,27 @@ final class AppSettings: ObservableObject {
         let storedVersion = defaults.integer(forKey: Keys.settingsSchemaVersion)  // 0 if never set
         guard storedVersion < Self.currentSchemaVersion else { return }
 
-        if storedVersion < 1 {
-            migrateV0toV1()
+        // Version 1 has been stamped since the first shipped build, so an unstamped store is
+        // a fresh install: nothing to migrate, and the registered defaults must not be
+        // "migrated" as if the user had chosen them.
+        if storedVersion == 0 {
+            defaults.set(Self.currentSchemaVersion, forKey: Keys.settingsSchemaVersion)
+            return
+        }
+
+        if storedVersion < 2 {
+            migrateV1toV2()
         }
 
         defaults.set(Self.currentSchemaVersion, forKey: Keys.settingsSchemaVersion)
     }
 
-    /// v0 → v1: no data change today; establishes the migration hook and stamps the version.
-    private func migrateV0toV1() {
-        // Intentionally empty. Future: copy/rename legacy keys here.
+    /// v1 → v2: the sensitivity→config mapping was re-centered so the old minimum is now the
+    /// midpoint and the old midpoint is the new maximum (`DetectorConfig.from(sensitivity:)`).
+    /// Shift the stored value by +0.5 (clamped) so the detector keeps behaving the way the
+    /// user had it — including an untouched v1 default (0.5 → 1.0), which is behavior-preserving.
+    private func migrateV1toV2() {
+        sensitivity = min(1, defaults.double(forKey: Keys.sensitivity) + 0.5)
     }
 
     // MARK: - Reset

@@ -30,8 +30,8 @@ final class DetectorConfigTests: XCTestCase {
     func testSustainedFramesNonIncreasing() {
         let frames = samples.map { DetectorConfig.from(sensitivity: $0).minSustainedFrames }
         for (a, b) in zip(frames, frames.dropFirst()) { XCTAssertGreaterThanOrEqual(a, b) }
-        XCTAssertEqual(DetectorConfig.from(sensitivity: 0).minSustainedFrames, 4)
-        XCTAssertEqual(DetectorConfig.from(sensitivity: 1).minSustainedFrames, 2)
+        XCTAssertEqual(DetectorConfig.from(sensitivity: 0).minSustainedFrames, 6)
+        XCTAssertEqual(DetectorConfig.from(sensitivity: 1).minSustainedFrames, 3)
     }
 
     func testHandConfidenceMonotonicallyDecreasing() {
@@ -41,12 +41,24 @@ final class DetectorConfigTests: XCTestCase {
 
     func testEndStops() {
         let strict = DetectorConfig.from(sensitivity: 0)
-        XCTAssertEqual(strict.reach, 0.04, accuracy: 1e-6)
-        XCTAssertEqual(strict.enterThreshold, 0.75, accuracy: 1e-6)
+        XCTAssertEqual(strict.reach, 0.02, accuracy: 1e-6)
+        XCTAssertEqual(strict.enterThreshold, 0.85, accuracy: 1e-6)
+        XCTAssertEqual(strict.handPointConfidence, 0.6, accuracy: 1e-6)
 
         let lax = DetectorConfig.from(sensitivity: 1)
-        XCTAssertEqual(lax.reach, 0.14, accuracy: 1e-6)
-        XCTAssertEqual(lax.enterThreshold, 0.45, accuracy: 1e-6)
+        XCTAssertEqual(lax.reach, 0.08, accuracy: 1e-6)
+        XCTAssertEqual(lax.enterThreshold, 0.60, accuracy: 1e-6)
+        XCTAssertEqual(lax.handPointConfidence, 0.4, accuracy: 1e-6)
+    }
+
+    /// The midpoint must be no laxer than the original mapping's strict end-stop, which is
+    /// where users parked the slider to avoid false positives.
+    func testMidpointIsAtLeastAsStrictAsLegacyMinimum() {
+        let mid = DetectorConfig.from(sensitivity: 0.5)
+        XCTAssertLessThanOrEqual(mid.reach, 0.05 + 1e-6)
+        XCTAssertGreaterThanOrEqual(mid.enterThreshold, 0.72)
+        XCTAssertGreaterThanOrEqual(mid.minSustainedFrames, 4)
+        XCTAssertGreaterThanOrEqual(mid.handPointConfidence, 0.5 - 1e-6)
     }
 
     func testClampsOutOfRangeInput() {

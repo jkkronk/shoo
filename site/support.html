@@ -59,11 +59,17 @@
   <ol>
     <li>Download the latest <code>Shoo-x.y.z.zip</code> from the <a href="https://github.com/jkkronk/shoo/releases">Releases page</a>.</li>
     <li>Unzip it and move <strong>Shoo.app</strong> into your <strong>Applications</strong> folder.</li>
-    <li>Launch it. Because Shoo is open source and not signed with a paid Apple Developer certificate, macOS will block the first launch. <strong>Right-click Shoo.app → Open → Open</strong> in the dialog. You only need to do this once.</li>
+    <li>Launch it. Because Shoo is open source and not notarized by Apple, macOS blocks the first launch with a dialog saying <strong>"Shoo" Not Opened. Apple could not verify "Shoo" is free of malware</strong>. This is expected, and you only need to get past it once.</li>
   </ol>
-  <p>If macOS still refuses with a message like "Shoo is damaged" or "cannot verify the developer", clear the quarantine flag in Terminal and try again:</p>
-  <pre><code>xattr -dr com.apple.quarantine /Applications/Shoo.app</code></pre>
-  <p>On macOS 15 and later you may instead need to go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click <strong>Open Anyway</strong> next to the message about Shoo.</p>
+  <h4 id="first-launch">Getting past the first-launch dialog</h4>
+  <p>Click <strong>Done</strong> in the dialog (not Move to Bin), then do one of the following:</p>
+  <ul>
+    <li><strong>System Settings.</strong> Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to the Security section, and click <strong>Open Anyway</strong> next to the message about Shoo. Authenticate, launch Shoo again, and click <strong>Open Anyway</strong> in the dialog that follows.</li>
+    <li><strong>Terminal.</strong> Clear the quarantine flag and Shoo launches without any dialog:
+      <pre><code>xattr -dr com.apple.quarantine /Applications/Shoo.app</code></pre>
+    </li>
+  </ul>
+  <p>On macOS 14 Sonoma and earlier, <strong>right-click Shoo.app → Open → Open</strong> also works. macOS 15 and later no longer offer that shortcut.</p>
 
   <h3>Building from source</h3>
   <p>Prefer to build it yourself? Clone the <a href="https://github.com/jkkronk/shoo">repository</a>, open <code>Shoo.xcodeproj</code> in Xcode 26 or later and run the <strong>Shoo</strong> scheme. The README has full build and test instructions.</p>
@@ -113,8 +119,8 @@
   <h3>"Launch at login" needs approval</h3>
   <p>macOS may ask you to approve the login item. Go to <strong>System Settings → General → Login Items &amp; Extensions</strong> and make sure Shoo is allowed.</p>
 
-  <h3>macOS says the app is damaged or from an unidentified developer</h3>
-  <p>See <a href="#install">Installing and first launch</a> above. This happens because the GitHub build isn't notarized, not because anything is wrong with the file. You can also build from source if you'd rather not bypass the warning.</p>
+  <h3>macOS says it could not verify Shoo, or that the app is damaged</h3>
+  <p>See <a href="#first-launch">Getting past the first-launch dialog</a> above. This happens because the GitHub build isn't notarized, not because anything is wrong with the file. You can also build from source if you'd rather not bypass the warning.</p>
 
   <h3>It's using more energy than I'd like</h3>
   <p>Shoo caps the camera frame rate and downscales frames before analysis, but computer vision still costs something. Pause it when you don't need it, or use snooze. Energy use is an area we're actively improving; your feedback on specific Macs is welcome.</p>

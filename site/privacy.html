@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — Shoo</title>
+  <meta name="description" content="Shoo's privacy policy. Shoo has no account, no analytics and no network access. All camera processing happens on your Mac.">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <img src="assets/favicon.png" alt="" width="24" height="24">
+      Shoo
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="./" class="hide-sm">Home</a>
+      <a href="privacy.html" aria-current="page">Privacy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="prose">
+  <h1>Privacy Policy</h1>
+  <p class="updated">Effective 7 October 2026 · Applies to Shoo for macOS</p>
+
+  <div class="callout">
+    <p><strong>The short version:</strong> Shoo has no account, no analytics and no network access. Your camera is used only while watching is on, every frame is processed on your Mac and immediately discarded, and nothing is ever recorded, saved or sent anywhere.</p>
+  </div>
+
+  <div class="toc">
+    <strong>Contents</strong>
+    <ol>
+      <li><a href="#who">Who this policy covers</a></li>
+      <li><a href="#camera">How Shoo uses your camera</a></li>
+      <li><a href="#face-data">Face and hand data</a></li>
+      <li><a href="#snapshot">The reminder snapshot</a></li>
+      <li><a href="#stored">What Shoo stores on your Mac</a></li>
+      <li><a href="#not">What Shoo does not do</a></li>
+      <li><a href="#permissions">Permissions</a></li>
+      <li><a href="#sandbox">Sandbox and security</a></li>
+      <li><a href="#third-parties">Third parties</a></li>
+      <li><a href="#children">Children</a></li>
+      <li><a href="#rights">Your rights and choices</a></li>
+      <li><a href="#changes">Changes to this policy</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <h2 id="who">1. Who this policy covers</h2>
+  <p>This policy describes how <strong>Shoo</strong>, a macOS menu-bar app published by Jonatan Kronander ("we", "us"), handles information. It applies to every version of the app, whether downloaded from GitHub Releases, built from source or installed from the Mac App Store.</p>
+  <p>Shoo is designed so that we never receive any information about you. We don't operate servers, accounts or analytics for the app. The sections below explain what the app does with your camera and what it keeps on your own Mac.</p>
+
+  <h2 id="camera">2. How Shoo uses your camera</h2>
+  <ul>
+    <li>Shoo uses the camera <strong>only while watching is turned on</strong>. You start and stop watching from the menu bar. Your Mac's green camera indicator is on whenever Shoo is using the camera.</li>
+    <li>Each frame is processed <strong>entirely on-device</strong> using Apple's Vision framework. No frame is ever sent to us or to anyone else.</li>
+    <li>Frames are downscaled before analysis, kept in memory only for as long as it takes to analyse them, and then discarded.</li>
+  </ul>
+
+  <h2 id="face-data">3. Face and hand data</h2>
+  <p>To decide whether a hand is near your face, Shoo computes the following from each frame:</p>
+  <ul>
+    <li>a face bounding box and the landmarks around the <strong>mouth and nose</strong>;</li>
+    <li>the positions of <strong>hand joints</strong> (fingertips, knuckles and wrist) for any hands in view.</li>
+  </ul>
+  <p>This information is used for one purpose only: to work out whether a fingertip is close to your mouth or nose and, if so, to show a reminder. It is held in memory for that single frame and then discarded. It is <strong>never written to disk, never stored across frames beyond a short smoothing window, never used to identify you, and never shared</strong>.</p>
+  <p>Shoo does not perform facial recognition, does not build a biometric template, and cannot tell who you are.</p>
+
+  <h2 id="snapshot">4. The reminder snapshot</h2>
+  <p>By default, the reminder overlay shows a small still image from the camera so you can see what triggered it. This snapshot:</p>
+  <ul>
+    <li>is kept in memory <strong>only while the overlay is on screen</strong> and is released when the overlay closes;</li>
+    <li>is <strong>never saved</strong> to disk or sent anywhere;</li>
+    <li>is excluded from screen recordings and screen sharing where macOS supports it;</li>
+    <li>can be turned off in <strong>Settings → Show camera snapshot in reminder</strong>. With it off, the overlay shows a hand symbol instead.</li>
+  </ul>
+
+  <h2 id="stored">5. What Shoo stores on your Mac</h2>
+  <p>Shoo keeps a small amount of information in its own preferences (macOS <code>UserDefaults</code>) inside the app's sandbox. None of it leaves your Mac.</p>
+  <table>
+    <thead><tr><th>What</th><th>Why</th><th>How long</th></tr></thead>
+    <tbody>
+      <tr><td>Your settings (sensitivity, timing, reminder options, launch at login and so on)</td><td>So the app behaves the way you configured it</td><td>Until you change them, reset them or remove the app</td></tr>
+      <tr><td>A count of reminders per day</td><td>For the "reminders today" figure in the menu</td><td>90 days, then rolled off</td></tr>
+      <tr><td>The identifier of the camera last used</td><td>So Shoo picks the same camera next time</td><td>Until you choose another camera or remove the app</td></tr>
+    </tbody>
+  </table>
+  <p>You can reset all settings from the app's Settings window. Trashing the app does not remove this folder; to erase it too, delete <code>~/Library/Containers/com.shoo.Shoo</code> (see <a href="support.html#uninstall">Uninstalling</a> on the support page).</p>
+
+  <h2 id="not">6. What Shoo does not do</h2>
+  <ul>
+    <li>It does <strong>not</strong> record video or audio, and it does <strong>not</strong> save any image.</li>
+    <li>It does <strong>not</strong> upload, stream or share any imagery, face or hand data, or anything else. The app has no network access.</li>
+    <li>It does <strong>not</strong> use face or hand data for advertising, marketing, identification, profiling or any purpose other than showing a reminder.</li>
+    <li>It does <strong>not</strong> include analytics, crash reporting, tracking or third-party code.</li>
+    <li>It does <strong>not</strong> collect personal information of any kind. We have nothing to sell, share or disclose.</li>
+  </ul>
+
+  <h2 id="permissions">7. Permissions</h2>
+  <ul>
+    <li><strong>Camera</strong> (required). Needed to notice hand-to-face gestures. macOS asks the first time you start watching. You can revoke it at any time in System Settings → Privacy &amp; Security → Camera; Shoo will simply stop working until you grant it again.</li>
+    <li><strong>Notifications</strong> (optional). Only requested if you turn on "Show a notification". macOS asks when you do.</li>
+    <li><strong>Login item</strong> (optional). Only registered if you turn on "Launch at login". It uses Apple's standard login-item mechanism and can be removed in System Settings → General → Login Items.</li>
+  </ul>
+
+  <h2 id="sandbox">8. Sandbox and security</h2>
+  <p>Shoo runs inside the macOS App Sandbox with a single entitlement: camera access (<code>com.apple.security.device.camera</code>). It requests no network, file, microphone, location or other device entitlements. This is enforced by the operating system, not just by our code. Because the app is open source, you can verify this yourself in the <a href="https://github.com/jkkronk/shoo">repository</a>.</p>
+
+  <h2 id="third-parties">9. Third parties</h2>
+  <p>Shoo contains no third-party SDKs, libraries or services. It is built only with Apple's own frameworks (such as AVFoundation, Vision, SwiftUI, ServiceManagement and UserNotifications), which run locally on your Mac and are governed by <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>.</p>
+  <p>If you download Shoo from GitHub, your interaction with GitHub is covered by <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement">GitHub's privacy statement</a>. If you install it from the Mac App Store, Apple's App Store terms apply to the download. In neither case do we receive any information about you.</p>
+
+  <h2 id="children">10. Children</h2>
+  <p>Shoo does not collect personal information from anyone, including children. The app is a general-purpose reminder tool and is not directed at children.</p>
+
+  <h2 id="rights">11. Your rights and choices</h2>
+  <p>Because we hold no data about you, there is nothing for us to access, correct, export or delete on request. Everything Shoo stores is on your Mac and under your control:</p>
+  <ul>
+    <li>Turn watching off, or quit the app, to stop all camera use.</li>
+    <li>Revoke camera access in System Settings at any time.</li>
+    <li>Reset settings from the app's Settings window, or delete the app and its container folder to remove everything.</li>
+  </ul>
+  <p>If you believe we have handled information in a way that is inconsistent with this policy, please <a href="#contact">contact us</a>. You also have the right to lodge a complaint with your local data-protection authority.</p>
+
+  <h2 id="changes">12. Changes to this policy</h2>
+  <p>If Shoo ever changes how it handles information (for example, if an opt-in diagnostics feature were added), this policy will be updated <em>before</em> the change ships, with a new effective date at the top. The current version is always available at <a href="https://jkkronk.github.io/shoo/privacy.html">jkkronk.github.io/shoo/privacy.html</a>, in the app under Settings → About, and in the repository as <code>docs/PRIVACY.md</code>. The repository's commit history shows every change.</p>
+
+  <h2 id="contact">13. Contact</h2>
+  <p>Questions about privacy? Open an issue at <a href="https://github.com/jkkronk/shoo/issues">github.com/jkkronk/shoo/issues</a> or see the <a href="support.html">support page</a> for other ways to reach us.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© 2026 Jonatan Kronander · MIT License</div>
+    <nav aria-label="Footer">
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a href="https://github.com/jkkronk/shoo/releases">Releases</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

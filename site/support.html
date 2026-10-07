@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support — Shoo</title>
+  <meta name="description" content="Get help with Shoo for macOS: installation, camera permission, first launch, troubleshooting and how to contact us.">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <img src="assets/favicon.png" alt="" width="24" height="24">
+      Shoo
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="./" class="hide-sm">Home</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html" aria-current="page">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main class="prose">
+  <h1>Support</h1>
+  <p class="updated">Help with installing, using and troubleshooting Shoo</p>
+
+  <div class="callout">
+    <p><strong>Need to reach us?</strong> The fastest way is to <a href="https://github.com/jkkronk/shoo/issues/new">open an issue on GitHub</a>. Bug reports, questions and feature ideas are all welcome. Before filing, have a quick look at the <a href="https://github.com/jkkronk/shoo/issues">existing issues</a> in case someone has already asked.</p>
+  </div>
+
+  <div class="toc">
+    <strong>On this page</strong>
+    <ol>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#install">Installing and first launch</a></li>
+      <li><a href="#using">Using Shoo</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#uninstall">Uninstalling</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ol>
+  </div>
+
+  <h2 id="requirements">1. Requirements</h2>
+  <ul>
+    <li><strong>macOS 14 Sonoma</strong> or later, on Apple silicon or Intel.</li>
+    <li>A <strong>built-in or external webcam</strong>. Shoo can't do anything without one.</li>
+    <li>Reasonable lighting so the camera can see your face and hands.</li>
+  </ul>
+
+  <h2 id="install">2. Installing and first launch</h2>
+  <h3>From GitHub Releases</h3>
+  <ol>
+    <li>Download the latest <code>Shoo-x.y.z.zip</code> from the <a href="https://github.com/jkkronk/shoo/releases">Releases page</a>.</li>
+    <li>Unzip it and move <strong>Shoo.app</strong> into your <strong>Applications</strong> folder.</li>
+    <li>Launch it. Because Shoo is open source and not signed with a paid Apple Developer certificate, macOS will block the first launch. <strong>Right-click Shoo.app → Open → Open</strong> in the dialog. You only need to do this once.</li>
+  </ol>
+  <p>If macOS still refuses with a message like "Shoo is damaged" or "cannot verify the developer", clear the quarantine flag in Terminal and try again:</p>
+  <pre><code>xattr -dr com.apple.quarantine /Applications/Shoo.app</code></pre>
+  <p>On macOS 15 and later you may instead need to go to <strong>System Settings → Privacy &amp; Security</strong>, scroll down, and click <strong>Open Anyway</strong> next to the message about Shoo.</p>
+
+  <h3>Building from source</h3>
+  <p>Prefer to build it yourself? Clone the <a href="https://github.com/jkkronk/shoo">repository</a>, open <code>Shoo.xcodeproj</code> in Xcode 26 or later and run the <strong>Shoo</strong> scheme. The README has full build and test instructions.</p>
+
+  <h3>Camera permission</h3>
+  <p>On first launch Shoo walks you through a short onboarding and then asks for camera access. This is required: without it, there's nothing to watch. You can change your mind later under <strong>System Settings → Privacy &amp; Security → Camera</strong>.</p>
+
+  <h2 id="using">3. Using Shoo</h2>
+  <ul>
+    <li><strong>Menu bar.</strong> Shoo has no Dock icon or main window. Look for the raised-hand symbol near the right end of the menu bar. Click it to start or pause watching, snooze, open Settings, or quit.</li>
+    <li><strong>The reminder.</strong> When a hand comes close to your mouth or nose, a small overlay appears in the middle of the screen. It fades out by itself, or you can click <strong>Dismiss</strong>, click <strong>Snooze</strong>, or click anywhere on it if "Click overlay to dismiss" is on.</li>
+    <li><strong>Snooze.</strong> From the menu, pause reminders for 15 minutes, 30 minutes or an hour. Watching resumes automatically.</li>
+    <li><strong>Sensitivity.</strong> Settings → Sensitivity. Higher sensitivity triggers earlier but may cause more false alarms. Start in the middle and adjust.</li>
+    <li><strong>Cooldown.</strong> Settings → Timing. The minimum time between two reminders, so Shoo doesn't fire repeatedly while you're already pulling your hand away.</li>
+    <li><strong>Reminder options.</strong> Settings → How you're reminded. Turn the overlay, a sound, or a macOS notification on or off. Show the overlay on every display or only the one with your pointer. Show or hide the camera snapshot in the reminder.</li>
+    <li><strong>Preview.</strong> Settings → <strong>Preview Reminder</strong> shows the overlay on demand, so you can see what it looks like without touching your face.</li>
+    <li><strong>Launch at login.</strong> Settings → Startup. Optionally also start watching as soon as Shoo launches.</li>
+  </ul>
+
+  <h2 id="troubleshooting">4. Troubleshooting</h2>
+
+  <h3>The camera light is on. Is that normal?</h3>
+  <p>Yes. macOS turns the indicator on whenever any app uses the camera, and Shoo uses it continuously while watching is on. Pause or quit Shoo and the light goes off. If the light is on and you didn't expect it, check the menu bar: Shoo may be set to start watching at launch.</p>
+
+  <h3>Shoo doesn't notice when I touch my face</h3>
+  <ul>
+    <li>Make sure watching is on (the menu bar item says so) and you're not snoozed.</li>
+    <li>Increase <strong>Sensitivity</strong> in Settings.</li>
+    <li>Check lighting and framing: your face and the hand need to be visible to the camera at the same time. Hands coming in from the side at the very edge of the frame are easy to miss.</li>
+    <li>Shoo looks for hands near the <strong>mouth and nose</strong>. Touching your forehead, hair, ears or chin is not meant to trigger it.</li>
+    <li>If you have more than one camera, Shoo remembers the one it used last. Unplug cameras that can't see you, or make sure the built-in one is the one Shoo picks.</li>
+  </ul>
+
+  <h3>Too many false alarms</h3>
+  <ul>
+    <li>Lower <strong>Sensitivity</strong>.</li>
+    <li>Increase the <strong>cooldown</strong> so repeated reminders are spaced out.</li>
+    <li>Resting your chin on your hand is partly tolerated, but a hand hovering right in front of your mouth will trigger a reminder by design.</li>
+  </ul>
+
+  <h3>The overlay appears but I can't click Snooze or Dismiss</h3>
+  <p>Update to the latest release. Early builds had a bug where the overlay let clicks through. If it still happens, please <a href="https://github.com/jkkronk/shoo/issues/new">open an issue</a> with your macOS version.</p>
+
+  <h3>"Show a notification" does nothing</h3>
+  <p>Notifications need permission. Turning the option on should prompt you; if you declined, enable Shoo under <strong>System Settings → Notifications</strong>. Shoo's Settings window shows a warning when notifications are turned off at the system level.</p>
+
+  <h3>"Launch at login" needs approval</h3>
+  <p>macOS may ask you to approve the login item. Go to <strong>System Settings → General → Login Items &amp; Extensions</strong> and make sure Shoo is allowed.</p>
+
+  <h3>macOS says the app is damaged or from an unidentified developer</h3>
+  <p>See <a href="#install">Installing and first launch</a> above. This happens because the GitHub build isn't notarized, not because anything is wrong with the file. You can also build from source if you'd rather not bypass the warning.</p>
+
+  <h3>It's using more energy than I'd like</h3>
+  <p>Shoo caps the camera frame rate and downscales frames before analysis, but computer vision still costs something. Pause it when you don't need it, or use snooze. Energy use is an area we're actively improving; your feedback on specific Macs is welcome.</p>
+
+  <h3>Reporting a bug</h3>
+  <p>Please include your macOS version, your Mac model, the Shoo version (Settings → About), what you expected and what happened instead. Shoo writes brief diagnostic lines to the unified system log under the <code>com.shoo.Shoo</code> subsystem, which you can view in Console.app. These logs never leave your Mac unless you choose to paste them into an issue.</p>
+
+  <h2 id="uninstall">5. Uninstalling</h2>
+  <ol>
+    <li>Quit Shoo from the menu bar.</li>
+    <li>If you enabled "Launch at login", turn it off in Shoo's Settings first (or remove it under System Settings → General → Login Items).</li>
+    <li>Drag <strong>Shoo.app</strong> from Applications to the Trash.</li>
+    <li>Optionally, delete <code>~/Library/Containers/com.shoo.Shoo</code>. This folder holds Shoo's settings and daily reminder counts, and macOS leaves it in place when you trash a sandboxed app.</li>
+  </ol>
+  <p>Nothing else is left behind.</p>
+
+  <h2 id="contact">6. Contact</h2>
+  <ul>
+    <li><strong>Bugs and questions:</strong> <a href="https://github.com/jkkronk/shoo/issues/new">open a GitHub issue</a>.</li>
+    <li><strong>Privacy questions:</strong> see the <a href="privacy.html">privacy policy</a>, or open an issue.</li>
+    <li><strong>Source code and releases:</strong> <a href="https://github.com/jkkronk/shoo">github.com/jkkronk/shoo</a>.</li>
+  </ul>
+  <p>Shoo is a free, open-source project maintained in spare time, so responses may take a few days. Pull requests are very welcome.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© 2026 Jonatan Kronander · MIT License</div>
+    <nav aria-label="Footer">
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a href="https://github.com/jkkronk/shoo/releases">Releases</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

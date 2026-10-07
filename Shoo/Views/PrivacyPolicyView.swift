@@ -55,7 +55,7 @@ struct PrivacyPolicyView: View {
     /// Mirrors `docs/PRIVACY.md`. Plain prose (no markdown bullets) so it renders cleanly here.
     private static let sections: [Section] = [
         Section(heading: title, paragraphs: [
-            "Last updated: 24 September 2026.",
+            "Last updated: 7 October 2026.",
             "Shoo is designed to be private by default. It has no account, no analytics, "
                 + "and no network access."
         ]),
@@ -88,7 +88,9 @@ struct PrivacyPolicyView: View {
             "Camera: required to notice hand-to-face gestures. macOS asks the first time you "
                 + "start watching.",
             "Notifications (optional): only if you turn on \"Show a notification\". macOS asks "
-                + "when you do."
+                + "when you do.",
+            "Login item (optional): only if you turn on \"Launch at login\". Uses Apple's standard "
+                + "login-item mechanism; remove it in System Settings → General → Login Items."
         ]),
         Section(heading: "Sandbox", paragraphs: [
             "The app runs in the macOS App Sandbox with only the camera entitlement. "

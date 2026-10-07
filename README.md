@@ -5,7 +5,10 @@ A macOS menu-bar app that watches you through the webcam and gently tells you to
 All image processing happens **on-device** using Apple's Vision framework. No video, frames, or data ever leave your Mac.
 
 <p align="center">
-  <img src="art/overlay-screenshot.png" alt="Shoo overlay: “Seen it! Step away from the face.” with Snooze and Dismiss buttons" width="420">
+  <img src="art/AppIcon-1024.png" alt="Shoo app icon: a blue raised hand" width="112">
+</p>
+<p align="center">
+  <img src="art/readme-hero.png" alt="Shoo reminder overlay on a Mac desktop: a blue hand, the headline “Gotcha!”, the line “Step away from the face.”, and Snooze and Dismiss buttons" width="720">
 </p>
 
 ## How it works
@@ -42,12 +45,15 @@ certificate and **not** notarized. Everything runs on-device inside the macOS sa
 app's only entitlement is camera access), so you can read exactly what it does before
 trusting it. Because it isn't notarized, Gatekeeper will block the first launch. To open it:
 
-- Right-click **Shoo.app** → **Open** → **Open** in the dialog, **or**
-- if macOS still refuses ("damaged" / "cannot verify"), clear the quarantine flag:
+- Click **Done** in the dialog, then open **System Settings → Privacy & Security**, scroll to
+  Security, and click **Open Anyway** next to the message about Shoo. Launch again and confirm, **or**
+- clear the quarantine flag in Terminal and it launches without any dialog:
 
   ```sh
   xattr -dr com.apple.quarantine /Applications/Shoo.app
   ```
+
+On macOS 14 and earlier, right-click **Shoo.app** → **Open** → **Open** also works.
 
 Prefer to build it yourself? See **Build & run** below.
 

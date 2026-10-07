@@ -7,9 +7,6 @@
   <meta name="description" content="Shoo's privacy policy. Shoo has no account, no analytics and no network access. All camera processing happens on your Mac.">
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +22,7 @@
       <a href="privacy.html" aria-current="page">Privacy</a>
       <a href="support.html">Support</a>
       <a href="https://github.com/jkkronk/shoo">GitHub</a>
-      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases/latest">Download</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases">Download</a>
     </nav>
   </div>
 </header>
@@ -82,7 +79,7 @@
   <ul>
     <li>is kept in memory <strong>only while the overlay is on screen</strong> and is released when the overlay closes;</li>
     <li>is <strong>never saved</strong> to disk or sent anywhere;</li>
-    <li>is excluded from screen recordings and screen sharing;</li>
+    <li>is excluded from screen recordings and screen sharing where macOS supports it;</li>
     <li>can be turned off in <strong>Settings → Show camera snapshot in reminder</strong>. With it off, the overlay shows a hand symbol instead.</li>
   </ul>
 
@@ -96,7 +93,7 @@
       <tr><td>The identifier of the camera last used</td><td>So Shoo picks the same camera next time</td><td>Until you choose another camera or remove the app</td></tr>
     </tbody>
   </table>
-  <p>You can reset all settings from the app's Settings window. Deleting the app removes its sandbox container and everything in it.</p>
+  <p>You can reset all settings from the app's Settings window. Trashing the app does not remove this folder; to erase it too, delete <code>~/Library/Containers/com.shoo.Shoo</code> (see <a href="support.html#uninstall">Uninstalling</a> on the support page).</p>
 
   <h2 id="not">6. What Shoo does not do</h2>
   <ul>
@@ -118,7 +115,7 @@
   <p>Shoo runs inside the macOS App Sandbox with a single entitlement: camera access (<code>com.apple.security.device.camera</code>). It requests no network, file, microphone, location or other device entitlements. This is enforced by the operating system, not just by our code. Because the app is open source, you can verify this yourself in the <a href="https://github.com/jkkronk/shoo">repository</a>.</p>
 
   <h2 id="third-parties">9. Third parties</h2>
-  <p>Shoo contains no third-party SDKs, libraries or services. It is built only with Apple frameworks (AVFoundation, Vision, SwiftUI, ServiceManagement and UserNotifications), which run locally on your Mac and are governed by <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>.</p>
+  <p>Shoo contains no third-party SDKs, libraries or services. It is built only with Apple's own frameworks (such as AVFoundation, Vision, SwiftUI, ServiceManagement and UserNotifications), which run locally on your Mac and are governed by <a href="https://www.apple.com/legal/privacy/">Apple's privacy policy</a>.</p>
   <p>If you download Shoo from GitHub, your interaction with GitHub is covered by <a href="https://docs.github.com/site-policy/privacy-policies/github-privacy-statement">GitHub's privacy statement</a>. If you install it from the Mac App Store, Apple's App Store terms apply to the download. In neither case do we receive any information about you.</p>
 
   <h2 id="children">10. Children</h2>
@@ -129,7 +126,7 @@
   <ul>
     <li>Turn watching off, or quit the app, to stop all camera use.</li>
     <li>Revoke camera access in System Settings at any time.</li>
-    <li>Reset settings from the app's Settings window, or delete the app to remove everything.</li>
+    <li>Reset settings from the app's Settings window, or delete the app and its container folder to remove everything.</li>
   </ul>
   <p>If you believe we have handled information in a way that is inconsistent with this policy, please <a href="#contact">contact us</a>. You also have the right to lodge a complaint with your local data-protection authority.</p>
 

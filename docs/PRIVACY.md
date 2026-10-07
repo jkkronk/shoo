@@ -1,6 +1,6 @@
 # Privacy
 
-_Last updated: 24 September 2026_
+_Last updated: 7 October 2026_
 
 > The hosted, App Store-facing version of this policy lives at
 > <https://jkkronk.github.io/shoo/privacy.html> (source: [`site/privacy.html`](../site/privacy.html)).
@@ -34,6 +34,7 @@ Shoo keeps a few things in its own preferences (`UserDefaults`, inside the app's
 
 - **Camera** (`NSCameraUsageDescription`): required to notice hand-to-face gestures. macOS asks the first time you start watching.
 - **Notifications** (optional): only if you turn on "Show a notification". macOS asks when you do.
+- **Login item** (optional): only if you turn on "Launch at login". Uses Apple's standard login-item mechanism; remove it in System Settings → General → Login Items.
 
 ## App Store privacy disclosures
 

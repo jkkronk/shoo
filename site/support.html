@@ -7,9 +7,6 @@
   <meta name="description" content="Get help with Shoo for macOS: installation, camera permission, first launch, troubleshooting and how to contact us.">
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,7 +22,7 @@
       <a href="privacy.html">Privacy</a>
       <a href="support.html" aria-current="page">Support</a>
       <a href="https://github.com/jkkronk/shoo">GitHub</a>
-      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases/latest">Download</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases">Download</a>
     </nav>
   </div>
 </header>
@@ -60,7 +57,7 @@
   <h2 id="install">2. Installing and first launch</h2>
   <h3>From GitHub Releases</h3>
   <ol>
-    <li>Download the latest <code>Shoo-x.y.z.zip</code> from the <a href="https://github.com/jkkronk/shoo/releases/latest">Releases page</a>.</li>
+    <li>Download the latest <code>Shoo-x.y.z.zip</code> from the <a href="https://github.com/jkkronk/shoo/releases">Releases page</a>.</li>
     <li>Unzip it and move <strong>Shoo.app</strong> into your <strong>Applications</strong> folder.</li>
     <li>Launch it. Because Shoo is open source and not signed with a paid Apple Developer certificate, macOS will block the first launch. <strong>Right-click Shoo.app → Open → Open</strong> in the dialog. You only need to do this once.</li>
   </ol>
@@ -76,7 +73,7 @@
 
   <h2 id="using">3. Using Shoo</h2>
   <ul>
-    <li><strong>Menu bar.</strong> Shoo has no Dock icon or main window. Look for the blue hand in the top-right of your screen. Click it to start or pause watching, snooze, open Settings, or quit.</li>
+    <li><strong>Menu bar.</strong> Shoo has no Dock icon or main window. Look for the raised-hand symbol near the right end of the menu bar. Click it to start or pause watching, snooze, open Settings, or quit.</li>
     <li><strong>The reminder.</strong> When a hand comes close to your mouth or nose, a small overlay appears in the middle of the screen. It fades out by itself, or you can click <strong>Dismiss</strong>, click <strong>Snooze</strong>, or click anywhere on it if "Click overlay to dismiss" is on.</li>
     <li><strong>Snooze.</strong> From the menu, pause reminders for 15 minutes, 30 minutes or an hour. Watching resumes automatically.</li>
     <li><strong>Sensitivity.</strong> Settings → Sensitivity. Higher sensitivity triggers earlier but may cause more false alarms. Start in the middle and adjust.</li>
@@ -130,8 +127,9 @@
     <li>Quit Shoo from the menu bar.</li>
     <li>If you enabled "Launch at login", turn it off in Shoo's Settings first (or remove it under System Settings → General → Login Items).</li>
     <li>Drag <strong>Shoo.app</strong> from Applications to the Trash.</li>
+    <li>Optionally, delete <code>~/Library/Containers/com.shoo.Shoo</code>. This folder holds Shoo's settings and daily reminder counts, and macOS leaves it in place when you trash a sandboxed app.</li>
   </ol>
-  <p>Shoo's settings and daily reminder counts live in its sandbox container at <code>~/Library/Containers/</code>, which macOS removes along with the app. Nothing else is left behind.</p>
+  <p>Nothing else is left behind.</p>
 
   <h2 id="contact">6. Contact</h2>
   <ul>

@@ -8,7 +8,7 @@ All image processing happens **on-device** using Apple's Vision framework. No vi
   <img src="art/AppIcon-1024.png" alt="Shoo app icon: a blue raised hand" width="112">
 </p>
 <p align="center">
-  <img src="art/readme-hero.png" alt="Shoo reminder overlay on a Mac desktop: a blue hand, the headline “Gotcha!”, the line “Step away from the face.”, and Snooze and Dismiss buttons" width="720">
+  <img src="art/readme-hero.png" alt="Shoo reminder overlay on a Mac desktop: a blue hand symbol, the headline “Gotcha!”, the line “Step away from the face.”, Snooze and Dismiss buttons, and a webcam thumbnail of someone biting their nails in the corner" width="720">
 </p>
 
 ## How it works

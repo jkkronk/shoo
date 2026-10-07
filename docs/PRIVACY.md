@@ -2,6 +2,10 @@
 
 _Last updated: 24 September 2026_
 
+> The hosted, App Store-facing version of this policy lives at
+> <https://jkkronk.github.io/shoo/privacy.html> (source: [`site/privacy.html`](../site/privacy.html)).
+> Keep the three copies in step: this file, the website, and `PrivacyPolicyView.swift`.
+
 Shoo is designed to be private by default. It has no account, no analytics, and no network access.
 
 ## What Shoo does

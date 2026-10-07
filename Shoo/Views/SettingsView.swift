@@ -182,6 +182,10 @@ private struct SettingsForm: View {
 
         Section {
             Button("Privacy Policy") { showPrivacy = true }
+            if let url = URL(string: "https://jkkronk.github.io/shoo/privacy.html") {
+                Link("View the privacy policy online", destination: url)
+                    .font(.caption)
+            }
         }
 
         Section("Acknowledgements") {

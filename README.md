@@ -24,6 +24,8 @@ The menu-bar UI lets you enable/disable watching, tune sensitivity and cooldown,
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PRIVACY.md`](docs/PRIVACY.md) for details.
 
+**Website:** <https://jkkronk.github.io/shoo/> — the [privacy policy](https://jkkronk.github.io/shoo/privacy.html) and [support page](https://jkkronk.github.io/shoo/support.html) are hosted there (source in [`site/`](site/)).
+
 ## Requirements
 
 - macOS 14.0 or later
@@ -82,6 +84,7 @@ ShooTests/       Unit tests for the pure detection logic
 project.yml      XcodeGen spec (source of truth for the Xcode project)
 scripts/         bootstrap / tooling
 docs/            Architecture & privacy notes
+site/            Static marketing site, privacy policy & support page (GitHub Pages)
 ```
 
 ## Roadmap
@@ -94,7 +97,7 @@ Open issues and improvements are tracked in [`docs/AUDIT.md`](docs/AUDIT.md).
 
 ## Privacy
 
-Shoo is camera-only and offline by design. It never records, stores, or transmits imagery. See [`docs/PRIVACY.md`](docs/PRIVACY.md).
+Shoo is camera-only and offline by design. It never records, stores, or transmits imagery. See the hosted [privacy policy](https://jkkronk.github.io/shoo/privacy.html) or [`docs/PRIVACY.md`](docs/PRIVACY.md).
 
 ## License
 

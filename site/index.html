@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shoo — Hands off your face</title>
+  <meta name="description" content="Shoo is a free, open-source macOS menu-bar app that notices when your hand reaches your face and gently reminds you to stop. Everything runs on-device. Nothing leaves your Mac.">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Shoo — Hands off your face">
+  <meta property="og:description" content="A private, on-device macOS reminder for nail-biting, nose-touching and other hand-to-face habits.">
+  <meta property="og:image" content="https://jkkronk.github.io/shoo/assets/icon-512.png">
+  <meta property="og:url" content="https://jkkronk.github.io/shoo/">
+  <meta name="twitter:card" content="summary">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="handGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4aa0f8"/>
+      <stop offset="1" stop-color="#1f5fe0"/>
+    </linearGradient>
+    <symbol id="hand" viewBox="0 0 100 100">
+      <g fill="url(#handGrad)">
+        <rect x="18" y="34" width="12" height="40" rx="6"/>
+        <rect x="32" y="22" width="12" height="52" rx="6"/>
+        <rect x="46" y="16" width="12" height="58" rx="6"/>
+        <rect x="60" y="24" width="12" height="50" rx="6"/>
+        <rect x="70" y="46" width="12" height="32" rx="6" transform="rotate(-50 76 48)"/>
+        <path d="M18 56 H72 V72 C72 86 60 94 45 94 C30 94 18 86 18 72 Z"/>
+      </g>
+    </symbol>
+    <symbol id="check" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.18"/>
+      <path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./">
+      <img src="assets/favicon.png" alt="" width="24" height="24">
+      Shoo
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#privacy" class="hide-sm">Privacy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases/latest">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div class="wrap">
+    <section class="hero">
+      <a class="pill" href="https://github.com/jkkronk/shoo/releases/latest">
+        <span class="tag">New</span>
+        Shoo 0.1 for macOS is out
+      </a>
+      <h1>Hands off<br><span class="dim">your face.</span></h1>
+      <p class="lead">
+        A tiny menu-bar app that watches through your webcam and catches your hand
+        before it reaches your mouth or nose. On-device, open source, nothing leaves your Mac.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://github.com/jkkronk/shoo/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Download for Mac
+        </a>
+        <a class="btn btn-secondary btn-lg" href="https://github.com/jkkronk/shoo">View on GitHub</a>
+      </div>
+      <p class="fineprint"><span>macOS 14+</span><span>Free</span><span>MIT licensed</span><span>No account</span></p>
+    </section>
+
+    <div class="stage">
+      <div class="window" aria-label="Illustration of the Shoo reminder overlay on a Mac desktop">
+        <div class="menubar" aria-hidden="true">
+          <div class="left"><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span></div>
+          <div class="right"><span class="live"></span><svg class="hand"><use href="#hand"/></svg><span>Tue 14:32</span></div>
+        </div>
+        <div class="desktop">
+          <div class="overlay" role="img" aria-label="Reminder overlay saying Gotcha! Step away from the face, with Snooze and Dismiss buttons">
+            <div class="hand-badge"><svg aria-hidden="true"><use href="#hand"/></svg></div>
+            <h3>Gotcha!</h3>
+            <p>Step away from the face.</p>
+            <div class="buttons"><span>Snooze</span><span class="primary">Dismiss</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats" aria-label="Key facts">
+        <div><b>100%</b><span>processed on-device</span></div>
+        <div><b>0 B</b><span>sent over the network</span></div>
+        <div><b>1</b><span>entitlement: the camera</span></div>
+        <div><b>MIT</b><span>open-source license</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section id="features">
+      <span class="kicker">Features</span>
+      <h2 class="section-title">A nudge, not a nag.</h2>
+      <p class="section-sub">
+        Nail-biting, lip-biting, nose-poking. Most of it happens without you noticing.
+        Shoo just helps you notice, then gets out of the way.
+      </p>
+      <div class="bento">
+        <div class="span-2">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Real hand-to-face detection</h3>
+          <p>Apple's Vision framework finds your face and both hands in every frame. Shoo measures fingertip distance to your mouth and nose, then applies temporal smoothing and hysteresis so a passing gesture doesn't set it off. A chin resting on your hand is tolerated. A finger at your lips is not.</p>
+        </div>
+        <div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Private by design</h3>
+          <p>No account, no analytics, no network entitlement. Sandboxed with camera access only.</p>
+        </div>
+        <div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="4" rx="1"/><path d="M6 12h.01"/><path d="M10 12h8"/><path d="M6 16h.01"/><path d="M10 16h6"/></svg></div>
+          <h3>Lives in the menu bar</h3>
+          <p>One click to start or pause. Snooze for 15, 30 or 60 minutes. See today's count at a glance.</p>
+        </div>
+        <div class="span-2">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/></svg></div>
+          <h3>Tune it to you</h3>
+          <p>Set how eager it is, how long it waits between reminders and how long the overlay stays. Preview the reminder from Settings any time, no face-touching required.</p>
+        </div>
+        <div class="span-2">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div>
+          <h3>Reminders your way</h3>
+          <p>The overlay is the default and the snapshot shows you what it saw. Add a sound or a macOS notification, show it on every display, dismiss with a click. The overlay is hidden from screen sharing.</p>
+        </div>
+        <div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18 22 12 16 6"/><path d="M8 6 2 12l6 6"/></svg></div>
+          <h3>Open source</h3>
+          <p>Swift, SwiftUI and Vision. No third-party code. Read every line before trusting it with your camera.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section id="how">
+      <span class="kicker">How it works</span>
+      <h2 class="section-title">Up and running in a minute.</h2>
+      <p class="section-sub">No sign-up. No setup wizard longer than three screens.</p>
+      <div class="steps">
+        <div class="step">
+          <h3>Download</h3>
+          <p>Grab the latest release, unzip it and drop Shoo into Applications.</p>
+        </div>
+        <div class="step">
+          <h3>Allow the camera</h3>
+          <p>macOS asks once. Shoo only uses the camera while watching is on, and the green light tells you when.</p>
+        </div>
+        <div class="step">
+          <h3>Start watching</h3>
+          <p>Click the hand in your menu bar. Shoo checks each frame on-device and discards it.</p>
+        </div>
+        <div class="step">
+          <h3>Get caught</h3>
+          <p>Hand reaches face, overlay pops up. Pull back and it fades on its own.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section id="privacy" style="padding-top:0">
+      <div class="panel">
+        <div>
+          <span class="kicker">Privacy</span>
+          <h2 class="section-title">Your webcam. Your Mac. Full stop.</h2>
+          <p class="section-sub">
+            A camera app has to earn trust. Shoo does it by doing less: no recording,
+            no uploading, no cloud, no code it doesn't need.
+          </p>
+          <ul class="checklist">
+            <li><svg><use href="#check"/></svg><div><strong>Nothing leaves your Mac</strong><span>No network entitlement. It cannot send data anywhere, even by mistake.</span></div></li>
+            <li><svg><use href="#check"/></svg><div><strong>Frames are processed, then discarded</strong><span>Face and hand positions live in memory for one frame.</span></div></li>
+            <li><svg><use href="#check"/></svg><div><strong>No video or audio is ever recorded</strong><span>The optional snapshot exists only while the overlay is on screen.</span></div></li>
+            <li><svg><use href="#check"/></svg><div><strong>No analytics, tracking or accounts</strong><span>Settings and a daily count are stored locally. That's the full list.</span></div></li>
+          </ul>
+          <a class="btn btn-secondary" href="privacy.html">Read the privacy policy</a>
+        </div>
+        <div class="pipeline" aria-label="On-device processing pipeline">
+          <div class="head"><i></i><i></i><i></i><span>pipeline.swift</span></div>
+          <div class="pipe"><em>01</em><b>Camera</b><span>frame → downscaled private buffer</span></div>
+          <div class="pipe"><em>02</em><b>Vision</b><span>face landmarks + 21 hand joints</span></div>
+          <div class="pipe"><em>03</em><b>Proximity</b><span>fingertip ↔ mouth / nose distance</span></div>
+          <div class="pipe"><em>04</em><b>Smoothing</b><span>hysteresis, debounce, cooldown</span></div>
+          <div class="pipe"><em>05</em><b>Reminder</b><span>overlay shown, frame released</span></div>
+          <div class="pipe"><em>06</em><b class="ok">Network</b><span class="ok">none — entitlement absent</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section id="faq" class="center">
+      <span class="kicker">FAQ</span>
+      <h2 class="section-title">Questions</h2>
+      <p class="section-sub">Short answers here. Longer ones on the <a href="support.html" style="color:var(--text);text-decoration:underline">support page</a>.</p>
+      <div class="faq" style="text-align:left">
+        <details>
+          <summary>Does Shoo record me?</summary>
+          <p>No. It never writes video, audio or images to disk, and it has no way to upload anything. Each frame is analysed in memory and thrown away.</p>
+        </details>
+        <details>
+          <summary>Why is my camera light on?</summary>
+          <p>Because Shoo is watching. The light is on whenever watching is enabled, and off when you pause or quit. That's how macOS works, and it means you always know.</p>
+        </details>
+        <details>
+          <summary>What does it detect?</summary>
+          <p>Hands near the mouth and nose: nail-biting, lip-biting, nose-touching and similar. It doesn't try to detect hair-pulling or skin-picking elsewhere on the face.</p>
+        </details>
+        <details>
+          <summary>Is this a medical product?</summary>
+          <p>No. Shoo is a reminder tool. It doesn't diagnose or treat anything. If a habit is causing you distress, please talk to a healthcare professional.</p>
+        </details>
+        <details>
+          <summary>Does it slow down my Mac?</summary>
+          <p>Shoo caps the frame rate and downscales each frame before analysis, so it stays light. You can pause it any time from the menu bar.</p>
+        </details>
+        <details>
+          <summary>Will there be an App Store version?</summary>
+          <p>It's being worked on. Until then, download the zipped app from GitHub Releases or build it yourself from source.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <div class="cta-final">
+    <div class="wrap">
+      <h2>Give your face a day off.</h2>
+      <p>Free, open source, and unsigned: macOS will ask you to confirm the first launch. Right-click the app and choose Open. Details on the <a href="support.html#install" style="color:var(--text);text-decoration:underline">support page</a>.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://github.com/jkkronk/shoo/releases/latest">Download for Mac</a>
+        <a class="btn btn-secondary btn-lg" href="https://github.com/jkkronk/shoo">Star on GitHub</a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>© 2026 Jonatan Kronander · MIT License</div>
+    <nav aria-label="Footer">
+      <a href="privacy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a href="https://github.com/jkkronk/shoo">GitHub</a>
+      <a href="https://github.com/jkkronk/shoo/releases">Releases</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

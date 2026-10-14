@@ -53,10 +53,8 @@ platform :mac do
     sh("cd .. && bash scripts/release.sh --upload")
   end
 
-  desc "Generate App Store screenshots"
+  desc "Capture App Store screenshots at 2560×1600 (interactive, Retina display)"
   lane :screenshots do
-    # TODO(plan-05): snapshot/capture_screenshots wiring; screenshot content is
-    # owned by plan 05. Skeleton lane only.
-    UI.message("Screenshot automation is owned by plan 05.")
+    sh("cd .. && bash scripts/screenshots.sh")
   end
 end

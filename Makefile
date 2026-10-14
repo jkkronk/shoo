@@ -5,7 +5,7 @@ DEST    := platform=macOS
 NOSIGN  := CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
 RESULTS := TestResults.xcresult
 
-.PHONY: bootstrap generate build test lint format coverage ci hooks package bump archive release clean help
+.PHONY: bootstrap generate build test lint format coverage ci hooks package bump archive release screenshots clean help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -48,6 +48,9 @@ archive: ## Archive + export a signed App Store .pkg into build/export, then run
 
 release: ## Archive + upload to App Store Connect / TestFlight
 	bash scripts/release.sh --upload
+
+screenshots: ## Capture App Store screenshots at 2560×1600 into build/screenshots
+	bash scripts/screenshots.sh
 
 ci: generate lint build test coverage ## Full local CI mirror
 

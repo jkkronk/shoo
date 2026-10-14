@@ -33,6 +33,8 @@ Carthage/Build/
 *.mobileprovision
 *.p12
 *.cer
+*.p8
+AuthKey_*.p8
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png

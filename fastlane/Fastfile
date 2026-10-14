@@ -1,7 +1,7 @@
 # fastlane configuration for Shoo.
-# Automation skeleton only — signing/upload specifics are owned by plan 05
-# (App Store distribution) and wired in via App Store Connect API key + match.
-# See plans/06-testing-ci.md and plans/05-appstore-distribution.md.
+# Local mirror of CI plus the App Store release path. The release lanes need Xcode 26
+# signed in to the developer account (team 8HW5ABG4L2) or an App Store Connect API key
+# in ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_PATH. See docs/APP_STORE_READINESS.md.
 
 default_platform(:mac)
 
@@ -32,19 +32,25 @@ platform :mac do
     )
   end
 
-  desc "Bump the build number (source of truth = project.yml)"
+  desc "Bump the build number in project.yml (source of truth) and regenerate"
   lane :bump do
-    # Versions live in project.yml (settings.base.CURRENT_PROJECT_VERSION /
-    # MARKETING_VERSION) because the Xcode project is generated. Edit there,
-    # then regenerate. TODO(plan-05/06): implement the project.yml edit (yq) here.
-    UI.message("Edit CURRENT_PROJECT_VERSION in project.yml, then `xcodegen generate`.")
+    spec = File.expand_path("../project.yml", __dir__)
+    text = File.read(spec)
+    current = text[/CURRENT_PROJECT_VERSION:\s*"?(\d+)"?/, 1].to_i
+    text.sub!(/CURRENT_PROJECT_VERSION:\s*"?\d+"?/, "CURRENT_PROJECT_VERSION: \"#{current + 1}\"")
+    File.write(spec, text)
+    sh("cd .. && xcodegen generate")
+    UI.success("CURRENT_PROJECT_VERSION #{current} → #{current + 1}")
   end
 
-  desc "Archive + upload to App Store / TestFlight"
+  desc "Archive + export an App Store .pkg into build/export (no upload)"
+  lane :archive do
+    sh("cd .. && bash scripts/release.sh")
+  end
+
+  desc "Archive + upload to App Store Connect / TestFlight"
   lane :release do
-    # TODO(plan-05): provide app_store_connect_api_key, app_identifier, signing
-    # (match), then enable build_mac_app (signed) + upload_to_app_store / deliver.
-    UI.user_error!("Signing & upload are configured in plan 05 — not yet wired.")
+    sh("cd .. && bash scripts/release.sh --upload")
   end
 
   desc "Generate App Store screenshots"

@@ -1,62 +1,68 @@
 # Shoo: Mac App Store readiness report
 
-_Reviewed `master` at `64ee00f` on 2026-09-24. I read every Swift file in `Shoo/`, the test target, `project.yml`, Info.plist, the entitlements, the privacy manifest, CI, fastlane, the scripts and the docs. Apple's requirements were checked against Apple's own pages; links are inline._
+_Reviewed `master` at `64ee00f` on 2026-09-24; to-do and status refreshed on 2026-10-14 after PRs #3–#9 merged and the release configuration landed. Apple's requirements were checked against Apple's own pages; links are inline._
 
-_What I didn't do: build or run the app. This machine has only the Command Line Tools, not Xcode. So the runtime behavior described below comes from reading the code. P0-5 includes a quick way to check it, and [Appendix B](#appendix-b-pre-submission-checks) covers checking the rest on a real build._
+---
+
+## Release to-do
+
+Decisions taken (all in code now; only the bundle ID is irreversible, and only once the first build is uploaded):
+
+| Decision | Value | Where |
+|---|---|---|
+| Developer account | Apple Developer Program, Individual enrollment | developer.apple.com → Membership |
+| Team ID | `8HW5ABG4L2` | `project.yml`, `fastlane/ExportOptions.plist` |
+| Bundle ID | `io.github.jkkronk.shoo` (tests: `io.github.jkkronk.shoo.tests`) | `project.yml`; log, queue and notification IDs derive from it via `AppInfo.bundleIdentifier` |
+| Category | Productivity (`public.app-category.productivity`) | `Shoo/Info.plist`; pick the same primary category in App Store Connect |
+| Copyright | © 2026 Jonatan Kronander | `Shoo/Info.plist`, site footer; use "2026 Jonatan Kronander" in App Store Connect |
+| Version | 1.0.0, build 1 | `project.yml`; `make bump` raises the build number before each upload |
+| Store name | **Your call.** Suggested: "Shoo: Hands Off Your Face" (≤30 chars). A different Mac utility called "Shoo!" already exists | App Store Connect, when creating the app record |
+
+- [x] Apple Developer Program membership (renews 8 Oct 2027)
+- [x] Code fixes from this report: PRs #3–#9 (onboarding, P1 fixes, blue icon, all displays, marketing site, first-launch docs, hand symbol, hero image)
+- [x] Privacy policy and support page live at <https://jkkronk.github.io/shoo/privacy.html> and <https://jkkronk.github.io/shoo/support.html>
+- [x] Team ID, bundle ID, `LSApplicationCategoryType`, copyright line, version 1.0.0
+- [x] Archive, export and upload path: `make archive`, `make release` (`scripts/release.sh`, `fastlane/ExportOptions.plist`); `make bump` for the build number
+- [ ] **On your Mac:** install Xcode 26 or later; Xcode → Settings → Accounts → add your Apple ID; select the team on the Shoo target once so automatic signing creates the certificates and profile
+- [ ] **Optional but recommended:** an Icon Composer version of the icon (`Shoo/Resources/Assets.xcassets/AppIcon.icon`), see [P0-3](#p0-3-the-app-icon-is-apples--emoji). Without it the icon is shown on a gray backdrop on macOS 26. Not a rejection reason
+- [ ] **Optional:** an email address on the support page. GitHub Issues already counts as contact information for the Support URL; only "trader" status in the EU form needs a published email
+- [ ] **App Store Connect:** register the App ID (`io.github.jkkronk.shoo`, capabilities: none) under Certificates, Identifiers & Profiles, then create the app record (platform macOS, name, primary language English, SKU e.g. `shoo-mac`)
+- [ ] **Store text:** subtitle, description, keywords, promotional text, "what's new", privacy URL, support URL, marketing URL (<https://jkkronk.github.io/shoo/>). Draft in [Appendix D](#appendix-d-store-listing-draft)
+- [ ] **Screenshots:** 3–5 at 2560×1600 (16:10). `art/readme-hero.png` is 1800×1080 and doesn't qualify. Suggested: onboarding privacy page, the menu popover, Settings, the reminder overlay with the blue hand (not a photo of someone else)
+- [ ] **Forms:** App Privacy ("Data Not Collected"), age rating questionnaire (expect 4+), EU Digital Services Act trader status, content rights, export compliance (already answered by `ITSAppUsesNonExemptEncryption = false`)
+- [ ] **First upload:** `make archive` (checks signing, category and entitlements), then `make release` or Xcode → Organizer → Distribute App
+- [ ] **TestFlight:** install the processed build on a clean macOS user account and run [Appendix B](#appendix-b-pre-submission-checks)
+- [ ] **Submit:** attach the review notes from [Appendix A](#appendix-a-review-notes-draft) and a short demo video link (screen recording of a reminder firing)
 
 ---
 
 ## Summary
 
-The foundation suits the Mac App Store. Shoo is sandboxed with only the camera entitlement and has no network access. It ships a privacy manifest and a clear camera purpose string, and it asks for the camera only after the user acts. Launch at login uses `SMAppService` and is off by default. The export-compliance key is set, and 132 unit tests cover the detection and alerting logic.
+The foundation suits the Mac App Store. Shoo is sandboxed with only the camera entitlement and has no network access. It ships a privacy manifest and a clear camera purpose string, and it asks for the camera only after the user acts. Launch at login uses `SMAppService` and is off by default. The export-compliance key is set, and the unit tests cover the detection and alerting logic.
 
-Three things stand in the way of a submission:
-
-1. **The distribution setup was never built.** There's no team, no signing and no upload path, and CI runs on a GitHub runner that's retired on 2 November.
-2. **Some Apple policy problems.** The most serious is that the app icon is Apple's ✋ emoji (since replaced, see [P0-3](#p0-3-the-app-icon-is-apples--emoji)).
-3. **Bugs in first launch and settings that a reviewer will hit within minutes.** The worst one: on a fresh install the app shows no window at all.
+Everything that could be fixed in code is fixed. What remains needs your Mac with Xcode, and the App Store Connect forms. The list above is the order to do it in.
 
 | ID | Problem | Priority | Status |
 |---|---|---|---|
-| [P0-1](#p0-1-no-signing-archive-or-upload-pipeline) | No signing, archive or upload pipeline | Blocker | Open |
-| [P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242) | `LSApplicationCategoryType` is missing, so the upload is rejected (ITMS-90242) | Blocker | Open (depends on your category choice) |
-| [P0-3](#p0-3-the-app-icon-is-apples--emoji) | The app icon is Apple's ✋ emoji (guideline 5.2.5) | Blocker | Partly: replaced with an original blue hand (`scripts/draw-appicon.swift`); still needs an Icon Composer version for macOS 26+ |
+| [P0-1](#p0-1-no-signing-archive-or-upload-pipeline) | No signing, archive or upload pipeline | Blocker | **Configured**: Team ID, bundle ID, `ExportOptions.plist`, `scripts/release.sh`. First archive still to run on a Mac |
+| [P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242) | `LSApplicationCategoryType` is missing, so the upload is rejected (ITMS-90242) | Blocker | **Fixed**: Productivity |
+| [P0-3](#p0-3-the-app-icon-is-apples--emoji) | The app icon is Apple's ✋ emoji (guideline 5.2.5) | Blocker | **Fixed** (original blue hand, `scripts/draw-appicon.swift`). Icon Composer version still recommended |
 | [P0-4](#p0-4-move-to-xcode-26) | Move to Xcode 26: the `macos-14` CI runner is retired on 2 Nov 2026, and the icon fix needs Xcode 26 | Blocker | **Fixed in CI**: `macos-26` with Xcode 26.6. Build locally with Xcode 26 too |
-| [P0-5](#p0-5-a-fresh-install-shows-no-ui-because-onboarding-never-opens) | A fresh install shows no UI because onboarding never opens (guideline 2.1) | Blocker in practice | **Fixed** |
-| [P0-6](#p0-6-the-app-store-connect-listing-doesnt-exist-yet) | The App Store Connect listing is missing: privacy URL, support URL, screenshots, review notes | Blocker | Open |
+| [P0-5](#p0-5-a-fresh-install-shows-no-ui-because-onboarding-never-opens) | A fresh install shows no UI because onboarding never opens (guideline 2.1) | Blocker in practice | **Fixed** (PR #3) |
+| [P0-6](#p0-6-the-app-store-connect-listing-doesnt-exist-yet) | The App Store Connect listing is missing: privacy URL, support URL, screenshots, review notes | Blocker | Partly: privacy and support pages are **live**; record, screenshots and forms still to do |
 | [P1-1](#p1-1-the-overlays-snooze-and-dismiss-buttons-cant-be-clicked-with-default-settings) | The overlay's Snooze and Dismiss buttons can't be clicked with default settings | Fix before submitting | **Fixed** |
 | [P1-2](#p1-2-show-a-notification-never-asks-for-permission-so-it-never-works) | "Show a notification" never asks for permission, so it never works | Fix before submitting | **Fixed** |
 | [P1-3](#p1-3-start-watching-on-launch-is-ignored-at-launch) | "Start watching on launch" is ignored at launch | Fix before submitting | **Fixed** |
 | [P1-4](#p1-4-escalation-plays-a-sound-even-when-play-a-sound-is-off) | Escalation plays a sound even when "Play a sound" is off | Fix before submitting | **Fixed** |
 | [P1-5](#p1-5-camera-permission-priming-screen-wording) | Button wording on the camera-permission priming screen (guideline 5.1.1) | Fix before submitting | **Fixed** (the close button stays enabled on the camera step) |
-| [P1-6](#p1-6-give-the-reviewer-a-way-to-see-the-app-work) | The reviewer has no way to see the app work without a real trigger | Fix before submitting | Partly: *Preview Reminder* added; description and demo video still to do |
-| [P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it) | The privacy policy is incomplete and not hosted | Fix before submitting | Partly: text updated in the app and `docs/PRIVACY.md`; still needs hosting |
+| [P1-6](#p1-6-give-the-reviewer-a-way-to-see-the-app-work) | The reviewer has no way to see the app work without a real trigger | Fix before submitting | Partly: *Preview Reminder* added; demo video still to record |
+| [P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it) | The privacy policy is incomplete and not hosted | Fix before submitting | **Fixed**: text updated and hosted on GitHub Pages |
 | [P1-8](#p1-8-the-camera-snapshot-is-on-by-default-and-shows-up-in-screen-shares) | The camera snapshot is on by default and shows up in screen shares | Fix before submitting | Partly: the overlay is kept out of screen capture; the snapshot stays **on by default** (product decision) |
-| [P1-9](#p1-9-keep-the-marketing-claims-accurate-and-non-medical) | Keep the marketing claims accurate and non-medical (guidelines 1.4.1 and 2.3.1) | Fix before submitting | Partly: onboarding now mentions the camera light; listing text is yours |
-| [P2-*](#p2-should-fix-quality-ratings-robustness) | Features with no UI, camera choice, energy use, a rare frame-rate crash, discoverability, localization, copyright | Should fix | P2-4 (frame-rate crash) **fixed**; the rest open |
-| [P3-*](#p3-hygiene) | CI, deprecated API, Swift 6 readiness, dead code, stale docs, two builds sharing one bundle ID | Nice to have | Open |
+| [P1-9](#p1-9-keep-the-marketing-claims-accurate-and-non-medical) | Keep the marketing claims accurate and non-medical (guidelines 1.4.1 and 2.3.1) | Fix before submitting | Partly: onboarding mentions the camera light; Productivity avoids the medical-device form; listing text drafted in Appendix D |
+| [P2-*](#p2-should-fix-quality-ratings-robustness) | Features with no UI, camera choice, energy use, a rare frame-rate crash, discoverability, localization, copyright | Should fix | P2-4 (frame-rate crash) and P2-7 (copyright) **fixed**; the rest open |
+| [P3-*](#p3-hygiene) | CI, deprecated API, Swift 6 readiness, dead code, stale docs, two builds sharing one bundle ID | Nice to have | Open. The ad-hoc GitHub zip now also uses `io.github.jkkronk.shoo`; stop shipping it once the store build is out, or sign it with Developer ID |
 
-**Fixes, 2026-09-24 (uncommitted):**
-- **Onboarding:** opens by itself at launch. Relaunching the running app opens onboarding or Settings.
-- **Start watching on launch:** now works, and never shows the camera prompt at launch.
-- **Overlay:** the buttons can be clicked, and "Click overlay to dismiss" works.
-- **Notifications:** turning them on asks for permission.
-- **Escalation:** no sound unless "Play a sound" is on.
-- **Camera permission:** the button on the priming screen says "Continue".
-- **Preview Reminder:** new button in Settings.
-- **Privacy policy:** updated in the app and in `docs/PRIVACY.md`.
-- **Snapshot:** the overlay is kept out of screen capture. The snapshot itself stays on by default.
-- **Overlay hand:** when there's no snapshot, the overlay now shows a blue hand symbol instead of the yellow ✋ emoji.
-- **App icon:** now an original blue hand drawn from basic shapes, not the Apple emoji. `scripts/draw-appicon.swift` regenerates it. SF Symbols can't be used in app icons, so it isn't the overlay's symbol.
-- **All displays:** the reminder shows on every display by default. Settings → "Show on all displays" limits it to the display with the pointer.
-- **CI:** now runs on `macos-26` with Xcode 26.6.
-- **Frame-rate crash:** fixed for cameras with fractional rates such as 29.97 fps.
-
-**Verification:** there's no Xcode on the review machine, so everything was checked with the Command Line Tools:
-- The app compiles with no new warnings.
-- All 138 unit tests pass: the 132 existing ones plus 6 new launch and onboarding tests, run against a stand-in for XCTest.
-- CI's SwiftLint 0.57.0 reports 0 violations in strict mode.
-- A sandboxed test build was launched on macOS 27 to confirm the launch, relaunch, onboarding-close and overlay-click behavior.
+**Verification of the 2026-10-14 changes:** this machine has no Xcode, so the Swift edits (four hard-coded `com.shoo` strings replaced by `AppInfo.bundleIdentifier`) were checked by reading, not by building. CI on the pull request builds and tests them. `scripts/release.sh` has only been syntax-checked; its first real run is on your Mac.
 
 **Priority key.** **P0**: the upload fails or review is very likely to reject. **P1**: a bug the reviewer will see, or a likely rejection reason. **P2**: user-facing quality, ratings and privacy optics. **P3**: hygiene.
 
@@ -65,6 +71,8 @@ Three things stand in the way of a submission:
 ## P0: Blockers
 
 ### P0-1 No signing, archive or upload pipeline
+
+_Status 2026-10-14: steps 1, 2 and 5 are done (`project.yml`, `AppInfo.bundleIdentifier`, `make bump`). Step 3 is yours in App Store Connect. Step 4 is scripted: `make archive` exports, `make release` uploads. The original analysis follows._
 
 **Where:** [`project.yml:18`](../project.yml#L18) has `DEVELOPMENT_TEAM: ""`. The `release` lane at [`fastlane/Fastfile:44-48`](../fastlane/Fastfile#L44-L48) fails on purpose. [`release.yml`](../.github/workflows/release.yml) only builds an unsigned archive, and [`scripts/package.sh`](../scripts/package.sh) produces ad-hoc-signed zips for GitHub.
 
@@ -82,6 +90,8 @@ Three things stand in the way of a submission:
 5. **Automate versioning.** Every upload needs a higher `CURRENT_PROJECT_VERSION`, so replace the `bump` lane stub. Consider `MARKETING_VERSION: 1.0.0` for launch; `0.1.0` is allowed but looks like a beta on a store page.
 
 ### P0-2 `LSApplicationCategoryType` is missing, so the upload is rejected (ITMS-90242)
+
+_Status 2026-10-14: fixed, `public.app-category.productivity` is in `Shoo/Info.plist`._
 
 **Where:** [`Shoo/Info.plist`](../Shoo/Info.plist) doesn't have the key, and `project.yml` doesn't set it either.
 
@@ -150,7 +160,7 @@ A related gotcha: `INFOPLIST_KEY_ITSAppUsesNonExemptEncryption` at [`project.yml
 - Implement `applicationShouldHandleReopen(_:hasVisibleWindows:)`. When the user launches the app again from Finder, Spotlight or Launchpad, open Settings, or onboarding if it isn't finished. That's the first thing a confused reviewer tries.
 - End onboarding by pointing to the menu-bar icon: "Shoo lives in your menu bar ↗". Also mention that the icon can be hidden behind the notch.
 
-**Check:** quit Shoo, run `defaults delete ~/Library/Containers/com.shoo.Shoo/Data/Library/Preferences/com.shoo.Shoo` (sandboxed apps keep their settings in their container; use your final bundle ID), then launch it again.
+**Check:** quit Shoo, run `defaults delete ~/Library/Containers/io.github.jkkronk.shoo/Data/Library/Preferences/io.github.jkkronk.shoo` (sandboxed apps keep their settings in their container), then launch it again.
 
 ### P0-6 The App Store Connect listing doesn't exist yet
 
@@ -298,7 +308,7 @@ As a result, users can never reach the "Paused by schedule" state, and "Snooze u
 | Swift 6 readiness | [`AppState.swift:531-541`](../Shoo/App/AppState.swift#L531-L541) | The `camera.onFrame` closure is created on the main actor but runs on the capture queue and reads `self.detector`. In Swift 6 language mode it would be treated as main-actor-isolated and crash at runtime. Make it nonisolated/`@Sendable`, and move `detector` out of `AppState`'s isolation before switching modes. Not needed for 1.0. |
 | Dead code | various | `CameraPermission.openSystemSettings()` duplicates `SystemSettings.openCameraPrivacy()`. Also unused: `AppState.pauseAlerts`/`alertsSuppressed`/`snoozedUntil`, `AlertManager.tick()` (the app never calls it), `CatchStatsStore.last7Days()`, `PauseReason.lowPower`, `ProximityAnalyzer.isHandInFace` and `WindowOpener.dismiss`. |
 | Stale docs | [`ARCHITECTURE.md`](ARCHITECTURE.md), README | ARCHITECTURE.md still mentions `CameraManager`, a `TabView` with a Schedule tab, `AlertMode` and `VNDetectFaceRectanglesRequest`. The README's "Download / unsigned" section changes once the app is on the store. |
-| Two builds share one bundle ID | `scripts/package.sh` | The ad-hoc GitHub zip and the App Store build would both be `com.shoo.Shoo`. macOS keys the camera permission to bundle ID *and* signature, so switching between the two builds re-prompts or gets confused. Either stop shipping ad-hoc zips, or sign the GitHub build with Developer ID and notarize it using the same account. Notarizing also removes the README's `xattr` workaround. |
+| Two builds share one bundle ID | `scripts/package.sh` | The ad-hoc GitHub zip and the App Store build both use `io.github.jkkronk.shoo`. macOS keys the camera permission to bundle ID *and* signature, so switching between the two builds re-prompts or gets confused. Either stop shipping ad-hoc zips, or sign the GitHub build with Developer ID and notarize it using the same account. Notarizing also removes the README's `xattr` workaround. |
 | Launch and AppKit paths have no tests | tests | Every P0/P1 bug above sits in app-lifecycle or AppKit glue that unit tests don't reach. Run the [checklist in Appendix B](#appendix-b-pre-submission-checks) on a clean macOS user account before each submission. Optionally add one XCUITest that launches with empty defaults and asserts the onboarding window appears. |
 
 ---
@@ -307,21 +317,21 @@ As a result, users can never reach the "Paused by schedule" state, and "Snooze u
 
 | Field | Status | Suggestion |
 |---|---|---|
-| App name (≤30 characters) | To do | A distinctive name, e.g. "Shoo: Hands Off Your Face". "Shoo!" is already an unrelated Mac utility ([P0-1](#p0-1-no-signing-archive-or-upload-pipeline)) |
+| App name (≤30 characters) | **Your decision** | A distinctive name, e.g. "Shoo: Hands Off Your Face". "Shoo!" is already an unrelated Mac utility ([P0-1](#p0-1-no-signing-archive-or-upload-pipeline)) |
 | Subtitle (≤30 characters) | To do | "Stop touching your face" / "Break the nail-biting habit" |
-| Category | To do | Health & Fitness is the natural fit but needs the medical-device declaration; Productivity avoids it. Must match `LSApplicationCategoryType` ([P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242)) |
-| Privacy policy URL | Missing | GitHub Pages page built from `docs/PRIVACY.md` ([P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it)) |
-| Support URL | Missing | Small support page or GitHub Issues |
+| Category | **Chosen** | Health & Fitness is the natural fit but needs the medical-device declaration; Productivity avoids it. Must match `LSApplicationCategoryType` ([P0-2](#p0-2-lsapplicationcategorytype-is-missing-so-the-upload-is-rejected-itms-90242)) |
+| Privacy policy URL | **Ready** | <https://jkkronk.github.io/shoo/privacy.html> ([P1-7](#p1-7-make-the-privacy-policy-complete-and-host-it)) |
+| Support URL | **Ready** | <https://jkkronk.github.io/shoo/support.html> |
 | Screenshots | Missing | 3–5 images at 2560×1600: menu popover, overlay (blue hand symbol or a consenting person's photo), Settings, onboarding privacy page |
 | App Privacy | Ready | "Data Not Collected" (matches `PrivacyInfo.xcprivacy`) |
-| Age rating | To do | Answer the reworked questionnaire; expect 4+, or 9+ if you say yes to health or wellness topics |
+| Age rating | To do | Answer the reworked questionnaire; expect 4+, or 9+ if you say yes to health or wellness topics. Shoo is a reminder tool, not a health app, so answer no |
 | Export compliance | Ready | `ITSAppUsesNonExemptEncryption = false` is in Info.plist |
 | Price | To do | Free |
-| Copyright | Fix | "2026 ⟨name⟩" ([P2-7](#p2-should-fix-quality-ratings-robustness)) |
+| Copyright | **Ready** | "2026 Jonatan Kronander" ([P2-7](#p2-should-fix-quality-ratings-robustness)) |
 | EU trader status | To do | Declare "trader" or "not a trader"; required for EU distribution ([P0-6](#p0-6-the-app-store-connect-listing-doesnt-exist-yet)) |
 | Regulated medical device | To do if Health & Fitness | Declare "No" ([P1-9](#p1-9-keep-the-marketing-claims-accurate-and-non-medical)) |
-| Review notes and demo video | Draft | [Appendix A](#appendix-a-review-notes-draft) |
-| Version / build | To do | 1.0.0 (build 1 or higher) |
+| Review notes and demo video | Notes drafted; video to record | [Appendix A](#appendix-a-review-notes-draft) |
+| Version / build | **Ready** | 1.0.0 (build 1) is set in `project.yml`; `make bump` before each later upload |
 
 ---
 
@@ -366,7 +376,7 @@ plutil -p build/export/Shoo.app/Contents/Info.plist | grep LSApplicationCategory
 # Privacy manifest is bundled
 ls build/export/Shoo.app/Contents/Resources/PrivacyInfo.xcprivacy
 # Reset the camera prompt for a re-test
-tccutil reset Camera <bundle-id>
+tccutil reset Camera io.github.jkkronk.shoo
 ```
 
 Then, on a clean macOS user account, confirm that:
@@ -389,3 +399,46 @@ Then, on a clean macOS user account, confirm that:
 - **Standard behavior:** a Quit item in the menu, and camera pausing on screen lock, display sleep, system sleep and critical thermal state.
 - **Accessibility:** VoiceOver announcements, and support for Reduce Motion, Reduce Transparency and Increase Contrast in the overlay.
 - **Tests:** a thorough unit-test suite for the pure logic (schedule, detector, alert state machine, stats).
+
+## Appendix D: Store listing draft
+
+Everything below is a draft to paste into App Store Connect and edit. Keep the claims to what Shoo detects (mouth and nose), and keep it non-medical.
+
+**Name (≤30):** Shoo: Hands Off Your Face
+
+**Subtitle (≤30):** Stop touching your face
+
+**Promotional text (≤170):** A gentle menu-bar reminder when your hand drifts to your mouth or nose. Everything runs on your Mac; nothing is stored or sent anywhere.
+
+**Description:**
+
+> Shoo sits in your menu bar and watches through your Mac's camera. When a fingertip comes close to your mouth or nose, it shows a short reminder on screen so you notice the habit and let go. That's all it does.
+>
+> How it works
+> • Detection runs on your Mac with Apple's Vision framework. No video, photos or data ever leave your computer, and the app has no network access at all.
+> • A reminder overlay appears for a few seconds, with Snooze and Dismiss buttons. Optionally, play a sound or show a notification too.
+> • Tune the sensitivity and the time between reminders. Snooze for 15, 30 or 60 minutes from the menu bar.
+> • Launch at login and start watching automatically, if you want.
+> • Preview the reminder from Settings without touching your face.
+>
+> Good to know
+> • The green camera light stays on while Shoo is watching. Pause or quit Shoo and it goes off.
+> • Shoo looks for hands near the mouth and nose: nail biting, lip biting, nose touching. It is not designed for other habits.
+> • Shoo is a reminder tool. It does not diagnose or treat anything.
+> • Requires a Mac with a built-in or external camera.
+>
+> Shoo is free and open source. Source code, privacy policy and support: jkkronk.github.io/shoo
+
+**Keywords (≤100 chars, comma-separated):** nail biting,face touching,habit,reminder,menu bar,focus,mindfulness,camera,webcam
+
+**What's new (1.0.0):** First release.
+
+**Privacy policy URL:** https://jkkronk.github.io/shoo/privacy.html
+**Support URL:** https://jkkronk.github.io/shoo/support.html
+**Marketing URL:** https://jkkronk.github.io/shoo/
+**Copyright:** 2026 Jonatan Kronander
+**Primary category:** Productivity. **Secondary:** Utilities (optional)
+**Price:** Free
+**App Privacy:** Data Not Collected
+**Age rating:** answer no to every content question; the result should be 4+
+**EU trader status:** for a free, non-commercial app "Not a trader" is allowed. Choosing "Trader" requires a public address, phone and email on the EU product page

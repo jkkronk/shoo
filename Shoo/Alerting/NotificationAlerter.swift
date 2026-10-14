@@ -9,7 +9,7 @@ import UserNotifications
 @MainActor
 final class NotificationAlerter {
     /// Fixed id so a new reminder replaces the previous banner instead of piling up.
-    private static let identifier = "com.shoo.Shoo.reminder"
+    private static let identifier = AppInfo.bundleIdentifier + ".reminder"
 
     private let center: UNUserNotificationCenter
     /// Set once we know the user granted permission, to skip needless re-requests.

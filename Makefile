@@ -5,7 +5,7 @@ DEST    := platform=macOS
 NOSIGN  := CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
 RESULTS := TestResults.xcresult
 
-.PHONY: bootstrap generate build test lint format coverage ci hooks package clean help
+.PHONY: bootstrap generate build test lint format coverage ci hooks package bump archive release clean help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -39,6 +39,15 @@ hooks: ## Install opt-in git pre-commit hook
 
 package: ## Build + ad-hoc sign + zip a distributable Shoo.app
 	bash scripts/package.sh
+
+bump: ## Increment CURRENT_PROJECT_VERSION in project.yml (every upload needs a higher one)
+	bundle exec fastlane mac bump
+
+archive: ## Archive + export a signed App Store .pkg into build/export, then run checks
+	bash scripts/release.sh
+
+release: ## Archive + upload to App Store Connect / TestFlight
+	bash scripts/release.sh --upload
 
 ci: generate lint build test coverage ## Full local CI mirror
 

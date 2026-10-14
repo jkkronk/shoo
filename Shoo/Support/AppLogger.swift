@@ -3,7 +3,7 @@ import os
 /// Centralized `os.Logger` instances, one per subsystem area.
 /// Use like `AppLogger.camera.error("…")`.
 enum AppLogger {
-    private static let subsystem = "com.shoo.Shoo"
+    private static let subsystem = AppInfo.bundleIdentifier
 
     static let camera = Logger(subsystem: subsystem, category: "camera")
     static let detection = Logger(subsystem: subsystem, category: "detection")

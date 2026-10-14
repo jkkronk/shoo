@@ -57,20 +57,26 @@ xcodebuild -exportArchive \
   -exportPath "$EXPORT_DIR" \
   -allowProvisioningUpdates ${AUTH_ARGS[@]+"${AUTH_ARGS[@]}"}
 
-APP="$EXPORT_DIR/Shoo.app"
 PKG="$(ls "$EXPORT_DIR"/*.pkg | head -1)"
+# An App Store export produces only the .pkg. Inspect the app inside the archive for
+# plist/entitlement checks, and expand the .pkg to check the distribution signature.
+ARCHIVE_APP="$ARCHIVE/Products/Applications/Shoo.app"
+EXPANDED="build/pkg-contents"
+rm -rf "$EXPANDED"
+pkgutil --expand-full "$PKG" "$EXPANDED"
+PKG_APP="$(find "$EXPANDED" -name 'Shoo.app' -maxdepth 4 -type d | head -1)"
 echo
 echo "== Pre-submission checks (docs/APP_STORE_READINESS.md, Appendix B) =="
 echo "-- entitlements (expect only app-sandbox + device.camera):"
-codesign -d --entitlements - "$APP" 2>/dev/null | grep -E 'com\.apple\.security' || true
-echo "-- signing authority:"
-codesign -dv --verbose=4 "$APP" 2>&1 | grep -E '^(Authority|TeamIdentifier|Identifier)=' || true
-echo "-- installer signature:"
+codesign -d --entitlements - "$PKG_APP" 2>/dev/null | grep -E 'com\.apple\.security' || true
+echo "-- app signing authority (expect Apple Distribution / 3rd Party Mac Developer Application):"
+codesign -dv --verbose=4 "$PKG_APP" 2>&1 | grep -E '^(Authority|TeamIdentifier|Identifier)=' || true
+echo "-- installer signature (expect 3rd Party Mac Developer Installer):"
 pkgutil --check-signature "$PKG" | head -4 || true
 echo "-- category / version:"
-plutil -p "$APP/Contents/Info.plist" | grep -E 'LSApplicationCategoryType|CFBundleShortVersionString|CFBundleVersion' || true
+plutil -p "$ARCHIVE_APP/Contents/Info.plist" | grep -E 'LSApplicationCategoryType|CFBundleShortVersionString|CFBundleVersion|CFBundleIdentifier' || true
 echo "-- privacy manifest:"
-ls "$APP/Contents/Resources/PrivacyInfo.xcprivacy"
+ls "$ARCHIVE_APP/Contents/Resources/PrivacyInfo.xcprivacy"
 
 if [[ "$UPLOAD" == true ]]; then
   echo

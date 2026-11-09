@@ -23,7 +23,7 @@ final class CameraController: NSObject, FrameSource {
 
     private let session = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
-    private let sessionQueue = DispatchQueue(label: "com.shoo.camera.session")
+    private let sessionQueue = DispatchQueue(label: AppInfo.bundleIdentifier + ".camera.session")
 
     private var videoInput: AVCaptureDeviceInput?
     private var activeDevice: AVCaptureDevice?

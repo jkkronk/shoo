@@ -24,6 +24,10 @@
 	     Declaring this skips the export-compliance prompt on every upload. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Required for Mac App Store uploads (ITMS-90242). Must match the primary category
+	     chosen in App Store Connect. -->
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
@@ -31,7 +35,7 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Shoo uses the camera to detect when your hands touch your face. Video is processed on-device and never leaves your Mac.</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2026. All rights reserved.</string>
+	<string>© 2026 Jonatan Kronander. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

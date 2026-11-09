@@ -18,7 +18,7 @@ Nothing in weeks 1–6 starts until sections A–C are done. Everything below se
 ### A. Decisions (do these first, they unblock the rest)
 
 - [ ] **Record the App Store URL** here: `https://apps.apple.com/app/id__________`
-- [ ] **Decide the fate of the GitHub zip.** Recommended: App Store is the primary download; keep GitHub Releases as a secondary "build from source / unsigned zip" option for the open-source audience. Note that both builds share the bundle ID `com.shoo.Shoo` (flagged in `APP_STORE_READINESS.md`), so users should install only one.
+- [ ] **Decide the fate of the GitHub zip.** Recommended: App Store is the primary download; keep GitHub Releases as a secondary "build from source / unsigned zip" option for the open-source audience. Note that both builds share the bundle ID `io.github.jkkronk.shoo` (flagged in `APP_STORE_READINESS.md`), so users should install only one.
 - [ ] **Write the one-line pitch and a 50-word blurb** once, and reuse them verbatim everywhere (listing, site, posts, press email).
 
 ### B. Site (`site/`)

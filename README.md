@@ -37,13 +37,17 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/PRIVACY.md`](docs/
 
 ## Download
 
-Grab the latest zipped `.app` from the [**Releases**](../../releases) page, unzip it, and
-move **Shoo.app** to `/Applications`.
+**[Get Shoo free on the Mac App Store](https://apps.apple.com/app/id6822772523)** (listed as *Shoo: Hands Off Your Face*).
+That's the easiest way: it's signed, reviewed by Apple, and updates automatically.
 
-Shoo is **open source and unsigned** — it is **not** signed with a paid Apple Developer
-certificate and **not** notarized. Everything runs on-device inside the macOS sandbox (the
-app's only entitlement is camera access), so you can read exactly what it does before
-trusting it. Because it isn't notarized, Gatekeeper will block the first launch. To open it:
+### Unsigned GitHub build
+
+Prefer not to use the App Store? Grab the latest zipped `.app` from the
+[**Releases**](../../releases) page, unzip it, and move **Shoo.app** to `/Applications`.
+Install either this or the App Store version, not both (they share a bundle ID).
+
+This build is **not** notarized. It runs on-device inside the same macOS sandbox (the app's
+only entitlement is camera access), but Gatekeeper will block the first launch. To open it:
 
 - Click **Done** in the dialog, then open **System Settings → Privacy & Security**, scroll to
   Security, and click **Open Anyway** next to the message about Shoo. Launch again and confirm, **or**

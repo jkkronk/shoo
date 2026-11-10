@@ -17,24 +17,24 @@ Nothing in weeks 1–6 starts until sections A–C are done. Everything below se
 
 ### A. Decisions (do these first, they unblock the rest)
 
-- [ ] **Record the App Store URL** here: `https://apps.apple.com/app/id__________`
-- [ ] **Decide the fate of the GitHub zip.** Recommended: App Store is the primary download; keep GitHub Releases as a secondary "build from source / unsigned zip" option for the open-source audience. Note that both builds share the bundle ID `com.shoo.Shoo` (flagged in `APP_STORE_READINESS.md`), so users should install only one.
+- [x] **Record the App Store URL** here: <https://apps.apple.com/app/id6822772523> (listed as "Shoo: Hands Off Your Face", app ID `6822772523`)
+- [ ] **Decide the fate of the GitHub zip.** Recommended: App Store is the primary download; keep GitHub Releases as a secondary "build from source / unsigned zip" option for the open-source audience. Note that both builds share the bundle ID `io.github.jkkronk.shoo`, so users should install only one. _Done: site, support page and README now say so._
 - [ ] **Write the one-line pitch and a 50-word blurb** once, and reuse them verbatim everywhere (listing, site, posts, press email).
 
 ### B. Site (`site/`)
 
-- [ ] `site/index.html` — point the four download buttons (nav, hero pill, hero button, bottom call to action) at the App Store URL. Use Apple's official "Download on the Mac App Store" badge for the hero.
-- [ ] `site/index.html` — replace the FAQ entry "Will there be an App Store version?" ("It's being worked on") with "Where do I get it?".
-- [ ] `site/index.html` — rewrite the bottom call-to-action text that says "not notarized: macOS blocks the first launch".
-- [ ] `site/index.html` — update the `<meta name="description">` and add Open Graph / Twitter card tags (`og:title`, `og:description`, `og:image`, `twitter:card`) so shared links show a preview. Needs a 1200×630 image in `site/assets/`.
-- [ ] `site/index.html` — add `<meta name="apple-itunes-app" content="app-id=…">` and embed the demo clip from section D near the top.
-- [ ] `site/support.html` — make "From the Mac App Store" the first install section; move the Gatekeeper / "Open Anyway" steps under a "GitHub build only" heading.
-- [ ] `site/privacy.html` and `site/support.html` — point the nav "Download" buttons at the App Store.
+- [x] `site/index.html` — point the four download buttons (nav, hero pill, hero button, bottom call to action) at the App Store URL. Use Apple's official "Download on the Mac App Store" badge for the hero. _Links done; the buttons are styled text, the official badge artwork is still to add._
+- [x] `site/index.html` — replace the FAQ entry "Will there be an App Store version?" ("It's being worked on") with "Where do I get it?".
+- [x] `site/index.html` — rewrite the bottom call-to-action text that says "not notarized: macOS blocks the first launch".
+- [~] `site/index.html` — update the `<meta name="description">` and add Open Graph / Twitter card tags (`og:title`, `og:description`, `og:image`, `twitter:card`) so shared links show a preview. Needs a 1200×630 image in `site/assets/`. _Description updated and OG tags exist; still uses the 512 px icon and a `summary` card until the 1200×630 image exists._
+- [~] `site/index.html` — add `<meta name="apple-itunes-app" content="app-id=…">` and embed the demo clip from section D near the top. _Meta tag done; clip waits on section D._
+- [x] `site/support.html` — make "From the Mac App Store" the first install section; move the Gatekeeper / "Open Anyway" steps under a "GitHub build only" heading.
+- [x] `site/privacy.html` and `site/support.html` — point the nav "Download" buttons at the App Store.
 - [ ] Add a campaign token to the site's App Store links (`?pt=…&ct=website`) so App Store Connect attributes the traffic.
 
 ### C. Repository
 
-- [ ] `README.md` — replace the "Download" section: App Store badge first, GitHub zip second. Drop "unsigned / not notarized" as the headline.
+- [x] `README.md` — replace the "Download" section: App Store badge first, GitHub zip second. Drop "unsigned / not notarized" as the headline.
 - [ ] `README.md` — put the demo GIF above the fold.
 - [ ] GitHub repo settings — set the description, the website URL, and topics (`macos`, `menu-bar`, `swift`, `vision-framework`, `nail-biting`, `habit-tracker`, `privacy`).
 - [ ] GitHub repo settings — upload a social preview image (same 1200×630 as the site).

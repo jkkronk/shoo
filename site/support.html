@@ -22,7 +22,7 @@
       <a href="privacy.html">Privacy</a>
       <a href="support.html" aria-current="page">Support</a>
       <a href="https://github.com/jkkronk/shoo">GitHub</a>
-      <a class="btn btn-primary btn-sm" href="https://github.com/jkkronk/shoo/releases">Download</a>
+      <a class="btn btn-primary btn-sm" href="https://apps.apple.com/app/id6822772523">Download</a>
     </nav>
   </div>
 </header>
@@ -55,7 +55,15 @@
   </ul>
 
   <h2 id="install">2. Installing and first launch</h2>
-  <h3>From GitHub Releases</h3>
+  <h3>From the Mac App Store</h3>
+  <ol>
+    <li>Open <a href="https://apps.apple.com/app/id6822772523">Shoo: Hands Off Your Face</a> on the Mac App Store and click <strong>Get</strong>.</li>
+    <li>Launch Shoo from Applications or Launchpad. It lives in the menu bar, and a short onboarding walks you through camera access.</li>
+  </ol>
+  <p>The App Store build is signed and reviewed by Apple, so there is no first-launch warning.</p>
+
+  <h3>From GitHub Releases (unsigned build)</h3>
+  <p>The open-source zip is for people who prefer not to use the App Store. Install either this or the App Store version, not both.</p>
   <ol>
     <li>Download the latest <code>Shoo-x.y.z.zip</code> from the <a href="https://github.com/jkkronk/shoo/releases">Releases page</a>.</li>
     <li>Unzip it and move <strong>Shoo.app</strong> into your <strong>Applications</strong> folder.</li>
@@ -120,7 +128,7 @@
   <p>macOS may ask you to approve the login item. Go to <strong>System Settings → General → Login Items &amp; Extensions</strong> and make sure Shoo is allowed.</p>
 
   <h3>macOS says it could not verify Shoo, or that the app is damaged</h3>
-  <p>See <a href="#first-launch">Getting past the first-launch dialog</a> above. This happens because the GitHub build isn't notarized, not because anything is wrong with the file. You can also build from source if you'd rather not bypass the warning.</p>
+  <p>See <a href="#first-launch">Getting past the first-launch dialog</a> above. This only happens with the GitHub build, because it isn't notarized; nothing is wrong with the file. To avoid the warning entirely, install Shoo from the <a href="https://apps.apple.com/app/id6822772523">Mac App Store</a>.</p>
 
   <h3>It's using more energy than I'd like</h3>
   <p>Shoo caps the camera frame rate and downscales frames before analysis, but computer vision still costs something. Pause it when you don't need it, or use snooze. Energy use is an area we're actively improving; your feedback on specific Macs is welcome.</p>

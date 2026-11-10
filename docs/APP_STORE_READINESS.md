@@ -18,21 +18,23 @@ Decisions taken (all in code now; only the bundle ID is irreversible, and only o
 | Version | 1.0.0, build 1 | `project.yml`; `make bump` raises the build number before each upload |
 | Store name | **Your call.** Suggested: "Shoo: Hands Off Your Face" (≤30 chars). A different Mac utility called "Shoo!" already exists | App Store Connect, when creating the app record |
 
+> **Shipped.** Shoo 1.0 is live on the Mac App Store as "Shoo: Hands Off Your Face": <https://apps.apple.com/app/id6822772523>. The checklist below is kept as the record of the first release.
+
 - [x] Apple Developer Program membership (renews 8 Oct 2027)
 - [x] Code fixes from this report: PRs #3–#9 (onboarding, P1 fixes, blue icon, all displays, marketing site, first-launch docs, hand symbol, hero image)
 - [x] Privacy policy and support page live at <https://jkkronk.github.io/shoo/privacy.html> and <https://jkkronk.github.io/shoo/support.html>
 - [x] Team ID, bundle ID, `LSApplicationCategoryType`, copyright line, version 1.0.0
 - [x] Archive, export and upload path: `make archive`, `make release` (`scripts/release.sh`, `fastlane/ExportOptions.plist`); `make bump` for the build number
-- [ ] **On your Mac:** install Xcode 26 or later; Xcode → Settings → Accounts → add your Apple ID; select the team on the Shoo target once so automatic signing creates the certificates and profile
+- [x] **On your Mac:** install Xcode 26 or later; Xcode → Settings → Accounts → add your Apple ID; select the team on the Shoo target once so automatic signing creates the certificates and profile
 - [ ] **Optional but recommended:** an Icon Composer version of the icon (`Shoo/Resources/Assets.xcassets/AppIcon.icon`), see [P0-3](#p0-3-the-app-icon-is-apples--emoji). Without it the icon is shown on a gray backdrop on macOS 26. Not a rejection reason
 - [ ] **Optional:** an email address on the support page. GitHub Issues already counts as contact information for the Support URL; only "trader" status in the EU form needs a published email
-- [ ] **App Store Connect:** register the App ID (`io.github.jkkronk.shoo`, capabilities: none) under Certificates, Identifiers & Profiles, then create the app record (platform macOS, name, primary language English, SKU e.g. `shoo-mac`)
-- [ ] **Store text:** subtitle, description, keywords, promotional text, "what's new", privacy URL, support URL, marketing URL (<https://jkkronk.github.io/shoo/>). Draft in [Appendix D](#appendix-d-store-listing-draft)
-- [ ] **Screenshots:** 3–5 at 2560×1600 (16:10). `art/readme-hero.png` is 1800×1080 and doesn't qualify. Suggested: onboarding privacy page, the menu popover, Settings, the reminder overlay with the blue hand (not a photo of someone else)
-- [ ] **Forms:** App Privacy ("Data Not Collected"), age rating questionnaire (expect 4+), EU Digital Services Act trader status, content rights, export compliance (already answered by `ITSAppUsesNonExemptEncryption = false`)
-- [ ] **First upload:** `make archive` (checks signing, category and entitlements), then `make release` or Xcode → Organizer → Distribute App
-- [ ] **TestFlight:** install the processed build on a clean macOS user account and run [Appendix B](#appendix-b-pre-submission-checks)
-- [ ] **Submit:** attach the review notes from [Appendix A](#appendix-a-review-notes-draft) and a short demo video link (screen recording of a reminder firing)
+- [x] **App Store Connect:** register the App ID (`io.github.jkkronk.shoo`, capabilities: none) under Certificates, Identifiers & Profiles, then create the app record (platform macOS, name, primary language English, SKU e.g. `shoo-mac`)
+- [x] **Store text:** subtitle, description, keywords, promotional text, "what's new", privacy URL, support URL, marketing URL (<https://jkkronk.github.io/shoo/>). Draft in [Appendix D](#appendix-d-store-listing-draft)
+- [x] **Screenshots:** 3–5 at 2560×1600 (16:10). `art/readme-hero.png` is 1800×1080 and doesn't qualify. Suggested: onboarding privacy page, the menu popover, Settings, the reminder overlay with the blue hand (not a photo of someone else)
+- [x] **Forms:** App Privacy ("Data Not Collected"), age rating questionnaire (expect 4+), EU Digital Services Act trader status, content rights, export compliance (already answered by `ITSAppUsesNonExemptEncryption = false`)
+- [x] **First upload:** `make archive` (checks signing, category and entitlements), then `make release` or Xcode → Organizer → Distribute App
+- [x] **TestFlight:** install the processed build on a clean macOS user account and run [Appendix B](#appendix-b-pre-submission-checks)
+- [x] **Submit:** attach the review notes from [Appendix A](#appendix-a-review-notes-draft) and a short demo video link (screen recording of a reminder firing)
 
 ---
 

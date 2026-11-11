@@ -26,7 +26,7 @@ Nothing in weeks 1–6 starts until sections A–C are done. Everything below se
 - [x] `site/index.html` — point the four download buttons (nav, hero pill, hero button, bottom call to action) at the App Store URL. Use Apple's official "Download on the Mac App Store" badge for the hero. _Links done; the buttons are styled text, the official badge artwork is still to add._
 - [x] `site/index.html` — replace the FAQ entry "Will there be an App Store version?" ("It's being worked on") with "Where do I get it?".
 - [x] `site/index.html` — rewrite the bottom call-to-action text that says "not notarized: macOS blocks the first launch".
-- [~] `site/index.html` — update the `<meta name="description">` and add Open Graph / Twitter card tags (`og:title`, `og:description`, `og:image`, `twitter:card`) so shared links show a preview. Needs a 1200×630 image in `site/assets/`. _Description updated and OG tags exist; still uses the 512 px icon and a `summary` card until the 1200×630 image exists._
+- [x] `site/index.html` — update the `<meta name="description">` and add Open Graph / Twitter card tags (`og:title`, `og:description`, `og:image`, `twitter:card`) so shared links show a preview. Needs a 1200×630 image in `site/assets/`. _Done: `site/assets/og-image.png`, large-image card._
 - [~] `site/index.html` — add `<meta name="apple-itunes-app" content="app-id=…">` and embed the demo clip from section D near the top. _Meta tag done; clip waits on section D._
 - [x] `site/support.html` — make "From the Mac App Store" the first install section; move the Gatekeeper / "Open Anyway" steps under a "GitHub build only" heading.
 - [x] `site/privacy.html` and `site/support.html` — point the nav "Download" buttons at the App Store.
@@ -46,7 +46,7 @@ Nothing in weeks 1–6 starts until sections A–C are done. Everything below se
 - [ ] Export it as: MP4 16:9 (site, X, Product Hunt), MP4 9:16 with captions (TikTok, Reels, Shorts), and a GIF under 5 MB (README, Reddit, press email).
 - [ ] **App Store preview video** cut from the same footage (1920×1080, 15–30 seconds, must show only the app in use).
 - [ ] **Screenshots,** 3–5 at 2560×1600: overlay, menu popover, Settings, onboarding privacy page. Add a short caption on each ("Runs entirely on your Mac"). No Apple emoji imagery.
-- [ ] One still image at 1200×630 for link previews (section B and C).
+- [x] One still image at 1200×630 for link previews (section B and C).
 
 ### E. App Store listing
 
